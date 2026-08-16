@@ -109,7 +109,15 @@ export function openVoicePlayer(file, audio) {
     el('div', { class: 'vp-controls' }, [backBtn, playBtn, fwdBtn]),
     el('div', { class: 'vp-extra' }, [replayBtn, dlBtn]),
   );
-  document.body.append(overlay);
+  // 从弹窗内（如房间文件界面）打开播放器时挂到弹窗层内，避免被弹窗遮挡；
+  // 后续新弹出的弹窗会追加在播放器之后，仍能正常盖住播放器
+  const modalRoot = document.querySelector('#modal-root.open');
+  if (modalRoot) {
+    overlay.style.zIndex = '10';
+    modalRoot.append(overlay);
+  } else {
+    document.body.append(overlay);
+  }
   overlay._audio = audio;
   if (key) voicePlayers.set(key, overlay);
 

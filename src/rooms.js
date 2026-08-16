@@ -468,8 +468,17 @@ export function roomRoutes({ db, cfg, service, hub }) {
     const mime = decodeHeader(req.headers['x-file-mime']) || 'application/octet-stream';
     let expires = expiresChoiceToIso(decodeHeader(req.headers['x-expires'])) || null;
     const folderRaw = decodeHeader(req.headers['x-folder']) || '';
-    const folderId = folderRaw ? Number(folderRaw) : null;
-    if (folderId != null) {
+    let folderId = null;
+    if (folderRaw === 'm4a') {
+      // 聊天框录音默认归档到 m4a 文件夹（不存在则自动创建），便于房主统一清理
+      let fld = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND name = ?').get(String(room.id), 'm4a');
+      if (!fld) {
+        const info = db.prepare('INSERT INTO room_folders (room_id, name, created_at) VALUES (?, ?, ?)').run(String(room.id), 'm4a', nowIso());
+        fld = { id: info.lastInsertRowid };
+      }
+      folderId = fld.id;
+    } else if (folderRaw) {
+      folderId = Number(folderRaw);
       const fld = db.prepare('SELECT id FROM room_folders WHERE id = ? AND room_id = ?').get(folderId, String(room.id));
       if (!fld) return sendJson(res, 400, { error: '文件夹不存在' });
     }

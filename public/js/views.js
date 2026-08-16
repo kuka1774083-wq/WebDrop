@@ -1150,7 +1150,8 @@ export function viewRoom(container, number) {
     title: `房间 ${number}`,
     onText: (t) => sendText(t),
     onFiles: (files) => uploadFiles(files),
-    onVoice: (blob) => uploadFiles([blob]),
+    // 聊天框录音默认归档到房间文件的 m4a 文件夹，便于房主统一清理
+    onVoice: (blob) => uploadFiles([blob], 'm4a'),
     onFilePick: (active) => ws.setFilePick(active),
   });
   chat.onSelectChange = updateSelectBar;

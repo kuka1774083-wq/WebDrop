@@ -72,7 +72,15 @@ export function modal({ title, body, actions = [], className = '' }) {
   root.classList.add('open');
   const close = () => {
     layer.remove();
-    if (!root.querySelector('.modal')) root.classList.remove('open');
+    if (!root.querySelector('.modal')) {
+      root.classList.remove('open');
+      // 弹窗全部关闭后，把挂在弹窗层内的播放器移回 body，避免随弹窗层一起隐藏
+      const players = root.querySelectorAll('.voice-player');
+      for (const p of players) {
+        p.style.zIndex = '';
+        document.body.append(p);
+      }
+    }
   };
   return { close, box };
 }

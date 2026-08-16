@@ -151,6 +151,34 @@ docker compose exec webdrop node scripts/reset-admin.js
 docker compose --profile tls up -d
 ```
 
+## 如何更新
+
+更新前先备份 `config/` 与 `data/` 两个挂载目录（升级不会动它们，但养成习惯更稳妥）。然后拉取最新代码并重建镜像：
+
+```bash
+# 1. 拉取最新代码
+git pull
+
+# 2. 重新构建镜像并重启容器（数据保留在挂载目录中）
+docker compose up -d --build
+
+# 3. 确认容器健康
+docker compose ps
+curl http://127.0.0.1:60003/api/health
+```
+
+> 如果改过 `docker-compose.yml` 或想强制重建：
+>
+> ```bash
+> docker compose down
+> docker compose build --no-cache
+> docker compose up -d
+> ```
+
+### 品牌 NAS / 飞牛 OS（fnOS）等图形化部署注意事项
+
+在群晖、威联通等品牌 NAS 或**飞牛 OS（fnOS）**的 Docker 图形界面中重新构建时，界面可能会直接复用上次构建的旧镜像缓存，导致"重新构建"后运行的仍是旧版本。此时需要在**镜像管理**里找到 WebDrop 对应的旧镜像，点击**清除（清理）**删除它，然后再回到**项目/容器**页面重新选择并**构建**，即可得到最新版本。删除镜像不会影响 `config/` 与 `data/` 挂载目录中的数据。
+
 ## 配置
 
 配置文件 `config/config.json`（支持 `WEBDROP_*` 环境变量覆盖，管理后台设置优先）：
