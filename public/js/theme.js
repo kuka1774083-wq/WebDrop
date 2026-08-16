@@ -98,6 +98,7 @@ export function openThemePreview(theme, meta, opts = {}) {
     title: `主题预览：${meta.name}`,
     body,
     actions,
+    className: 'theme-preview',
   });
   return m;
 }
