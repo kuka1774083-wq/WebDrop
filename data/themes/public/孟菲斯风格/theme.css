@@ -1,0 +1,192 @@
+/* ============================================================
+ * WebDrop 孟菲斯风格主题（memphis）
+ * ------------------------------------------------------------
+ * 对应风格：STYLEKIT memphis（孟菲斯）
+ *   - 奶油底色 #fef9ef，正文近黑
+ *   - 珊瑚红/柠檬黄/湖水蓝/蜜桃粉 撞色
+ *   - 粗黑描边（3px solid #111）+ 硬边投影（无模糊）
+ *   - 波点几何图案背景、圆角归零、粗体字形
+ *
+ * 说明：本主题完全基于现有主题框架实现：
+ *   1) :root 变量负责整体换色；
+ *   2) 重新定义 --shadow-* 派生变量，把新拟物双阴影换成硬边投影；
+ *   3) 变量之后的组件规则负责粗描边、几何图案与交互反馈。
+ * ============================================================ */
+:root {
+  /* 背景层次：奶油底 + 暖色次级面 */
+  --bg: #fef9ef;
+  --panel-bg: #fff6e3;
+  --bg-soft: #fff0d1;
+  --bg-deep: #f0e3c8;
+  /* 阴影：硬边投影（无模糊），暗色阴影 + 奶油高光 */
+  --dark: rgba(17, 17, 17, .9);
+  --light: rgba(255, 246, 227, .9);
+  --shadow-sm: 3px 3px 0 0 #111;
+  --shadow-md: 5px 5px 0 0 #111;
+  --shadow-lg: 8px 8px 0 0 #111;
+  --shadow-inset-sm: inset 2px 2px 0 0 rgba(17, 17, 17, .22);
+  --shadow-inset-md: inset 3px 3px 0 0 rgba(17, 17, 17, .22);
+  /* 文字：近黑为主，弱化文字用暖灰（保证 AA 对比） */
+  --text: #1a1a1a;
+  --text-strong: #111111;
+  --text-muted: #57534e;
+  /* 撞色：珊瑚红主操作、湖水蓝成功/在线、柠檬黄警告、蜜桃粉点缀 */
+  --accent: #ff6b6b;
+  --ok: #48dbfb;
+  --warn: #feca57;
+  --danger: #ff4757;
+  /* 彩色背景上的文字：孟菲斯用黑字 */
+  --on-accent: #111111;
+  --on-ok: #111111;
+  --on-danger: #111111;
+  /* 次要按钮：柠檬黄 */
+  --btn-secondary-bg: #feca57;
+  --btn-secondary-text: #111111;
+  /* 分隔线 / 遮罩 / 分隔阴影 */
+  --border: rgba(17, 17, 17, .35);
+  --overlay: rgba(17, 17, 17, .6);
+  --header-shadow: rgba(17, 17, 17, .35);
+  --head-shadow: rgba(17, 17, 17, .3);
+  --input-shadow: rgba(17, 17, 17, .3);
+  --glow-ring: rgba(255, 107, 107, 0);
+  --msg-time-own: rgba(17, 17, 17, .65);
+  --dot-inset: rgba(0, 0, 0, .25);
+  /* 徽章 */
+  --badge-ok-bg: rgba(72, 219, 251, .4);
+  --badge-ok-text: #0b4a5e;
+  --badge-warn-bg: rgba(254, 202, 87, .5);
+  --badge-warn-text: #6b4d00;
+  --badge-danger-bg: rgba(255, 71, 87, .22);
+  --badge-danger-text: #8b1220;
+  --badge-muted-bg: #eee5d0;
+  --badge-muted-text: #57534e;
+  /* 圆角归零：孟菲斯的硬朗几何 */
+  --radius: 0px;
+  --radius-lg: 0px;
+}
+
+/* ---------- 组件级覆盖：粗描边、硬阴影、几何图案、字体 ---------- */
+
+/* 全局字体与波点几何背景 */
+body {
+  font-family: "Arial Rounded MT Bold", "Arial Black", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(circle at 18% 8%, rgba(255, 107, 107, .18) 0 10px, transparent 11px),
+    radial-gradient(circle at 82% 28%, rgba(72, 219, 251, .18) 0 8px, transparent 9px),
+    radial-gradient(circle at 55% 88%, rgba(254, 202, 87, .2) 0 12px, transparent 13px),
+    radial-gradient(circle at 8% 72%, rgba(255, 159, 243, .16) 0 7px, transparent 8px),
+    radial-gradient(circle at 94% 78%, rgba(255, 107, 107, .15) 0 9px, transparent 10px);
+  background-attachment: fixed;
+}
+h1, h2, h3, .brand, .stat .v { font-weight: 900; letter-spacing: -.5px; }
+
+/* 页头：奶油底 + 粗黑下边 + 硬投影 */
+header {
+  background: var(--bg);
+  border-bottom: 4px solid #111;
+  box-shadow: 6px 6px 0 0 rgba(17, 17, 17, .3);
+}
+.brand { font-weight: 900; }
+
+/* 导航：选中态黑底白字 + 蜜桃粉硬投影 */
+nav a.active, #nav-user-area a.active {
+  background: #111;
+  color: #fef9ef;
+  box-shadow: 3px 3px 0 0 #ff9ff3;
+  font-weight: 900;
+}
+nav a:hover, #nav-user-area a:hover { box-shadow: 3px 3px 0 0 #111; }
+
+/* 按钮：粗黑描边 + 硬投影，hover 增大阴影并换色，按下位移 */
+.btn {
+  border: 3px solid #111;
+  border-radius: 0;
+  font-weight: 900;
+  box-shadow: 5px 5px 0 0 #111;
+  transition: all .15s ease;
+}
+.btn:hover {
+  box-shadow: 8px 8px 0 0 #111;
+  filter: none;
+  transform: translate(-2px, -2px);
+}
+.btn.ok:hover { background: #ff9ff3; }
+.btn.danger:hover { background: #ff6b6b; }
+.btn.secondary:hover { background: #48dbfb; }
+.btn:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 0 #111; }
+
+/* 卡片 / 面板 / 弹窗：奶油面 + 粗黑描边 + 大硬投影 */
+.panel, .card, .stat, .modal, .chat-wrap, .file-card, .multi-open-box {
+  background: var(--panel-bg);
+  border: 3px solid #111;
+  border-radius: 0;
+  box-shadow: 8px 8px 0 0 #111;
+}
+.modal { border: 3px solid #111; border-radius: 0; }
+
+/* 输入框：奶油白底 + 粗黑描边，聚焦显示硬投影 */
+input, select, textarea {
+  background: #fffdf5;
+  border: 3px solid #111;
+  border-radius: 0;
+  box-shadow: none;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 5px 5px 0 0 #111;
+  outline: none;
+}
+
+/* 表格：粗分隔线 + 柠檬黄表头 */
+th { background: #ffe8a3; }
+th, td { border-bottom: 2px solid #111; }
+
+/* 徽章：彩色底 + 黑描边 + 直角 */
+.badge { border: 2px solid #111; border-radius: 0; }
+.badge.ok { border-color: #0b4a5e; }
+.badge.warn { border-color: #6b4d00; }
+.badge.danger { border-color: #8b1220; }
+.badge.muted { border-color: #57534e; }
+
+/* 首页侧栏元素：描边 + 硬投影 */
+.my-banner, .user-item, .file-chip, .tab {
+  background: #fffdf5;
+  border: 2px solid #111;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 0 rgba(17, 17, 17, .3);
+}
+.user-item:hover { box-shadow: 5px 5px 0 0 #111; transform: none; }
+.tab.active { background: #111; color: #fef9ef; box-shadow: 3px 3px 0 0 #ff9ff3; }
+
+/* 选中主题卡片：黑底反白 + 蜜桃粉硬投影 */
+.theme-card.selected {
+  background: #111;
+  box-shadow: 5px 5px 0 0 #ff9ff3;
+}
+.theme-card.selected > div { color: #fef9ef; }
+
+/* 聊天：珊瑚红自己 / 奶油黄对方，全部黑描边直角 */
+.msg:not(.system) { border: 2px solid #111; border-radius: 0; }
+.msg.mine { background: var(--accent); color: #111; }
+.msg.theirs { background: #fff0d1; color: #111; }
+.msg.mine .msg-time { color: rgba(17, 17, 17, .65); }
+.progress { background: var(--bg-deep); border: 2px solid #111; border-radius: 0; box-shadow: none; }
+
+/* 页头 / 聊天分隔阴影走硬投影变量 */
+.chat-head { box-shadow: 0 4px 0 0 rgba(17, 17, 17, .25); }
+.chat-input { box-shadow: 0 -4px 0 0 rgba(17, 17, 17, .25); }
+
+/* 通知：珊瑚红底黑字黑描边 */
+.toast, .toast.error {
+  background: var(--accent);
+  color: #111;
+  border: 3px solid #111;
+  border-radius: 0;
+  box-shadow: 5px 5px 0 0 rgba(17, 17, 17, .45);
+}
+
+/* 会话请求闪烁：孟菲斯硬投影呼吸 */
+@keyframes request-flash {
+  0%, 100% { box-shadow: 5px 5px 0 0 #111; }
+  50% { box-shadow: 0 0 0 8px rgba(255, 107, 107, 0), 8px 8px 0 0 #111; }
+}

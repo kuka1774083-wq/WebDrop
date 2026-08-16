@@ -1,0 +1,29 @@
+services:
+  webdrop:
+    build: .
+    container_name: webdrop
+    restart: always
+    ports:
+      - "60003:8080"
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+    environment:
+      - NODE_ENV=production
+    # 可选：通过环境变量覆盖默认配置
+    # - WEBDROP_PORT=8080
+    # - WEBDROP_ADMIN_USERNAME=admin
+    # - WEBDROP_ADMIN_PASSWORD=admin
+
+  # 可选 HTTPS 方案：启用后访问 https://你的域名
+  # caddy:
+  #   image: caddy:2-alpine
+  #   profiles: ["tls"]
+  #   restart: unless-stopped
+  #   ports:
+  #     - "80:80"
+  #     - "443:443"
+  #   depends_on:
+  #     - webdrop
+  #   volumes:
+  #     - ./Caddyfile:/etc/caddy/Caddyfile

@@ -1,0 +1,187 @@
+/* ============================================================
+ * WebDrop 吉卜力风格主题（吉卜力风格 / ghibli-style）
+ * ------------------------------------------------------------
+ * 对应风格：STYLEKIT ghibli-style（吉卜力风格）
+ *   - 温暖治愈：奶油底 #f4e4bc + 鼠尾草绿 #7cb9a8
+ *   - 天空到大地柔和渐变 + 云朵装饰
+ *   - 圆润形状（rounded-2xl 级）、柔和鼠尾草绿描边
+ *   - 柔和扩散阴影（非硬边），hover 轻放大、按下微缩
+ *   - 圆润字体（幼圆/圆体优先），无锐利边缘与高对比撞色
+ *
+ * 说明：完全基于现有主题框架实现——:root 变量换色，
+ * 重新定义 --shadow-* 为柔和扩散投影，组件规则补充渐变与描边。
+ * ============================================================ */
+:root {
+  /* 背景层次：奶油主底，卡片稍亮 */
+  --bg: #f4e4bc;
+  --panel-bg: #f7eccb;
+  --bg-soft: #e9d5a8;
+  --bg-deep: #dcc58f;
+  /* 阴影：柔和扩散投影（鼠尾草绿调） */
+  --dark: rgba(124, 185, 168, .25);
+  --light: rgba(255, 255, 255, .7);
+  --shadow-sm: 0 2px 8px rgba(124, 185, 168, .15);
+  --shadow-md: 0 4px 16px rgba(124, 185, 168, .2);
+  --shadow-lg: 0 8px 32px rgba(124, 185, 168, .25);
+  --shadow-inset-sm: inset 0 2px 6px rgba(124, 185, 168, .12);
+  --shadow-inset-md: inset 0 4px 12px rgba(124, 185, 168, .15);
+  /* 文字：温暖大地色系 */
+  --text: #3a3226;
+  --text-strong: #2e271c;
+  --text-muted: #8a7a6a;
+  /* 强调色：鼠尾草绿 / 柔绿 / 暖金 / 柔陶红 */
+  --accent: #7cb9a8;
+  --ok: #8fb996;
+  --warn: #e8c07a;
+  --danger: #d98a7a;
+  /* 彩色背景上的文字：绿底白字，柔绿底用深字保证对比 */
+  --on-accent: #ffffff;
+  --on-ok: #3a3226;
+  --on-danger: #ffffff;
+  /* 次要按钮：奶油底 + 深字 + 鼠尾草描边 */
+  --btn-secondary-bg: #f4e4bc;
+  --btn-secondary-text: #3a3226;
+  /* 分隔线 / 遮罩 / 分隔阴影 */
+  --border: rgba(124, 185, 168, .4);
+  --overlay: rgba(58, 50, 38, .45);
+  --header-shadow: rgba(124, 185, 168, .2);
+  --head-shadow: rgba(124, 185, 168, .15);
+  --input-shadow: rgba(124, 185, 168, .15);
+  --glow-ring: rgba(124, 185, 168, 0);
+  --msg-time-own: rgba(255, 255, 255, .8);
+  --dot-inset: rgba(0, 0, 0, .15);
+  /* 徽章：柔和色系 */
+  --badge-ok-bg: rgba(143, 185, 150, .35);
+  --badge-ok-text: #2f5c38;
+  --badge-warn-bg: rgba(232, 192, 122, .4);
+  --badge-warn-text: #7a5a1f;
+  --badge-danger-bg: rgba(217, 138, 122, .3);
+  --badge-danger-text: #8a3d2c;
+  --badge-muted-bg: #e9d5a8;
+  --badge-muted-text: #8a7a6a;
+  /* 圆角：圆润柔和（rounded-2xl 级） */
+  --radius: 12px;
+  --radius-lg: 18px;
+}
+
+/* ---------- 组件级覆盖：柔和渐变、圆润形状、治愈配色 ---------- */
+
+/* 页面：天空到大地柔和渐变 + 云朵装饰 + 圆润字体 */
+body {
+  font-family: "Yuanti SC", "YouYuan", "Segoe UI", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background-color: #f4e4bc;
+  background-image:
+    radial-gradient(ellipse at 12% 5%, rgba(255, 255, 255, .7) 0 42px, transparent 46px),
+    radial-gradient(ellipse at 70% 3%, rgba(255, 255, 255, .55) 0 34px, transparent 38px),
+    radial-gradient(ellipse at 40% 8%, rgba(255, 255, 255, .4) 0 24px, transparent 28px),
+    linear-gradient(180deg, #cfe9e3 0%, #f7eccb 42%, #f2e2b8 100%);
+  background-attachment: fixed;
+}
+h1, h2, h3, .brand, .stat .v { font-weight: 600; letter-spacing: normal; }
+
+/* 页头：奶油底 + 鼠尾草绿细描边 + 柔和投影 */
+header {
+  background: #f4e4bc;
+  border-bottom: 1px solid rgba(124, 185, 168, .4);
+  box-shadow: 0 2px 8px rgba(124, 185, 168, .15);
+}
+
+/* 导航：选中态鼠尾草绿底白字 */
+nav a.active, #nav-user-area a.active {
+  background: #7cb9a8;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(124, 185, 168, .3);
+}
+nav a:hover, #nav-user-area a:hover { background: rgba(124, 185, 168, .15); }
+
+/* 按钮：鼠尾草绿 + 圆润 + 柔和投影，hover 轻放大，按下微缩 */
+.btn {
+  background: #7cb9a8;
+  border: 1px solid rgba(124, 185, 168, .4);
+  border-radius: 14px;
+  color: #fff;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(124, 185, 168, .2);
+  transition: all .3s ease-out;
+}
+.btn:hover { transform: scale(1.02); box-shadow: 0 8px 24px rgba(124, 185, 168, .3); }
+.btn:active { transform: scale(.98); box-shadow: 0 2px 8px rgba(124, 185, 168, .2); }
+.btn.ok { background: #8fb996; color: #3a3226; }
+.btn.danger { background: #d98a7a; color: #fff; }
+.btn.secondary { background: #f4e4bc; color: #3a3226; }
+
+/* 卡片 / 面板 / 弹窗：奶油面 + 鼠尾草描边 + 柔和投影 */
+.panel, .card, .stat, .modal, .chat-wrap, .file-card, .multi-open-box {
+  background: #f7eccb;
+  border: 1px solid rgba(124, 185, 168, .4);
+  border-radius: 18px;
+  box-shadow: 0 4px 16px rgba(124, 185, 168, .2);
+}
+
+/* 输入框：米白纸感 + 鼠尾草描边，聚焦柔和光晕 */
+input, select, textarea {
+  background: #faf5eb;
+  border: 1px solid rgba(124, 185, 168, .4);
+  border-radius: 14px;
+  color: #3a3226;
+  box-shadow: inset 0 2px 6px rgba(124, 185, 168, .1);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #7cb9a8;
+  box-shadow: 0 4px 16px rgba(124, 185, 168, .25);
+  outline: none;
+}
+
+/* 表格：暖米表头 + 鼠尾草分隔线 */
+th { background: #e9d5a8; }
+th, td { border-bottom: 1px solid rgba(124, 185, 168, .35); }
+
+/* 徽章：柔和底 + 细描边 */
+.badge { border: 1px solid rgba(124, 185, 168, .35); }
+
+/* 首页侧栏元素：米白面 + 圆润 + 柔和投影 */
+.my-banner, .user-item, .file-chip, .tab {
+  background: #faf5eb;
+  border: 1px solid rgba(124, 185, 168, .35);
+  border-radius: 14px;
+  box-shadow: 0 2px 8px rgba(124, 185, 168, .12);
+}
+.user-item:hover { box-shadow: 0 6px 18px rgba(124, 185, 168, .25); transform: scale(1.01); }
+.tab.active { background: #7cb9a8; color: #fff; }
+
+/* 选中主题卡片：柔和辉光 */
+.theme-card.selected {
+  box-shadow: 0 4px 16px rgba(124, 185, 168, .3), inset 0 2px 6px rgba(124, 185, 168, .15);
+}
+.theme-del { border: 1px solid rgba(217, 138, 122, .5); box-shadow: 0 2px 8px rgba(217, 138, 122, .3); }
+
+/* 聊天：自己鼠尾草绿白字，对方米白深字，全部圆润 */
+.msg:not(.system) { border: 1px solid rgba(124, 185, 168, .4); border-radius: 16px; }
+.msg.mine {
+  background: #7cb9a8;
+  color: #fff;
+  box-shadow: 0 4px 12px rgba(124, 185, 168, .25);
+}
+.msg.theirs {
+  background: #faf5eb;
+  color: #3a3226;
+  box-shadow: 0 2px 8px rgba(124, 185, 168, .15);
+}
+.progress { background: #dcc58f; border: 1px solid rgba(124, 185, 168, .3); border-radius: 999px; }
+.progress > div { background: #7cb9a8; border-radius: 999px; }
+
+/* 通知：鼠尾草绿 + 白字 + 柔和投影 */
+.toast, .toast.error {
+  background: #7cb9a8;
+  color: #fff;
+  border: 1px solid rgba(124, 185, 168, .4);
+  border-radius: 14px;
+  box-shadow: 0 4px 16px rgba(124, 185, 168, .25);
+}
+
+/* 会话请求闪烁：柔和呼吸 */
+@keyframes request-flash {
+  0%, 100% { box-shadow: 0 4px 16px rgba(124, 185, 168, .2); }
+  50% { box-shadow: 0 0 0 8px rgba(124, 185, 168, 0), 0 6px 20px rgba(124, 185, 168, .3); }
+}

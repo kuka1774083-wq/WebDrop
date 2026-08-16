@@ -1,0 +1,202 @@
+/* ============================================================
+ * WebDrop 蒸汽朋克主题（蒸汽朋克 / steampunk）
+ * ------------------------------------------------------------
+ * 对应风格：STYLEKIT steampunk（蒸汽朋克）
+ *   - 深棕色底 #2a1f15 / #3d2b1f，泛黄纸张文字 #f5f0e1
+ *   - 黄铜 #b5a642 / 铜色 #b87333 金属质感
+ *   - 暖色光晕（无模糊阴影 + 黄铜辉光）替代现代硬阴影
+ *   - 衬线字体（Georgia / 宋体）传递维多利亚优雅
+ *   - 铜色细描边、克制的圆角、按压 scale(.95) 的机械反馈
+ *   - 面板角落黄铜铆钉点缀，页面叠加做旧纹理
+ *
+ * 说明：完全基于现有主题框架实现——:root 变量换色，
+ * 重新定义 --shadow-* 为黄铜辉光，组件规则补充金属渐变与描边。
+ * ============================================================ */
+:root {
+  /* 背景层次：深棕主底，次级面板稍浅 */
+  --bg: #2a1f15;
+  --panel-bg: #33261a;
+  --bg-soft: #3d2b1f;
+  --bg-deep: #1f1710;
+  /* 阴影：黄铜暖光晕（无模糊半径的辉光式投影） */
+  --dark: rgba(0, 0, 0, .55);
+  --light: rgba(181, 166, 66, .12);
+  --shadow-sm: 0 0 8px rgba(181, 166, 66, .2);
+  --shadow-md: 0 0 15px rgba(181, 166, 66, .3);
+  --shadow-lg: 0 0 25px rgba(181, 166, 66, .4);
+  --shadow-inset-sm: inset 0 1px 4px rgba(0, 0, 0, .4), inset 0 0 8px rgba(181, 166, 66, .08);
+  --shadow-inset-md: inset 0 2px 6px rgba(0, 0, 0, .45), inset 0 0 12px rgba(181, 166, 66, .1);
+  /* 文字：奶油主色、黄铜次色、铜色弱化 */
+  --text: #f5f0e1;
+  --text-strong: #fffaf0;
+  --text-muted: #c98a4b;
+  /* 强调色：黄铜 / 橄榄绿 / 铜琥珀 / 砖红 */
+  --accent: #b5a642;
+  --ok: #7d9440;
+  --warn: #b87333;
+  --danger: #c1443b;
+  /* 彩色背景上的文字：黄铜底用深棕字，其余用奶油字 */
+  --on-accent: #2a1f15;
+  --on-ok: #f5f0e1;
+  --on-danger: #f5f0e1;
+  /* 次要按钮：透明底 + 铜色描边（蒸汽朋克 outline 按钮） */
+  --btn-secondary-bg: transparent;
+  --btn-secondary-text: #b87333;
+  /* 分隔线 / 遮罩 / 分隔阴影 */
+  --border: rgba(184, 115, 51, .4);
+  --overlay: rgba(20, 14, 9, .72);
+  --header-shadow: rgba(0, 0, 0, .5);
+  --head-shadow: rgba(0, 0, 0, .4);
+  --input-shadow: rgba(0, 0, 0, .4);
+  --glow-ring: rgba(181, 166, 66, 0);
+  --msg-time-own: rgba(42, 31, 21, .7);
+  --dot-inset: rgba(0, 0, 0, .3);
+  /* 徽章：暖色系 */
+  --badge-ok-bg: rgba(125, 148, 64, .3);
+  --badge-ok-text: #c5d6a0;
+  --badge-warn-bg: rgba(184, 115, 51, .3);
+  --badge-warn-text: #e0b183;
+  --badge-danger-bg: rgba(193, 68, 59, .25);
+  --badge-danger-text: #e8a49e;
+  --badge-muted-bg: #3d2b1f;
+  --badge-muted-text: #b87333;
+  /* 圆角：克制的 rounded / rounded-lg，禁止大圆角 */
+  --radius: 6px;
+  --radius-lg: 10px;
+}
+
+/* ---------- 组件级覆盖：金属质感、铜描边、暖光晕、衬线字体 ---------- */
+
+/* 页面：深棕底 + 做旧纹理 + 衬线字体 */
+body {
+  font-family: Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif;
+  background-color: #2a1f15;
+  background-image:
+    radial-gradient(ellipse at 50% 0%, rgba(181, 166, 66, .07), transparent 62%),
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .012) 0 2px, transparent 2px 7px);
+  background-attachment: fixed;
+}
+h1, h2, h3, .brand, .stat .v { font-weight: 700; letter-spacing: .5px; }
+
+/* 页头：深棕渐变 + 铜色下边 + 黄铜微光 */
+header {
+  background: linear-gradient(180deg, #3d2b1f 0%, #2a1f15 100%);
+  border-bottom: 2px solid rgba(184, 115, 51, .4);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, .5), 0 0 15px rgba(181, 166, 66, .12);
+}
+
+/* 导航：选中态黄铜渐变 + 深棕字 */
+nav a.active, #nav-user-area a.active {
+  background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%);
+  color: #2a1f15;
+  font-weight: 700;
+  box-shadow: 0 0 12px rgba(181, 166, 66, .35);
+}
+nav a:hover, #nav-user-area a:hover { box-shadow: 0 0 12px rgba(181, 166, 66, .3); }
+
+/* 按钮：黄铜渐变 + 深棕字 + 辉光，hover 增辉，按下 scale(.95) */
+.btn {
+  background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%);
+  border: 1px solid rgba(184, 115, 51, .5);
+  border-radius: 6px;
+  color: #2a1f15;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 0 15px rgba(181, 166, 66, .3);
+  transition: all .3s ease;
+}
+.btn:hover { box-shadow: 0 0 25px rgba(181, 166, 66, .5); filter: brightness(1.05); }
+.btn:active { transform: scale(.95); box-shadow: 0 0 10px rgba(181, 166, 66, .4); }
+.btn.ok { background: linear-gradient(180deg, #8f9f4a 0%, #6e7d36 100%); color: #f5f0e1; }
+.btn.danger { background: linear-gradient(180deg, #c9534a 0%, #9e3a33 100%); color: #f5f0e1; }
+.btn.secondary { background: transparent; color: #b87333; border: 2px solid rgba(184, 115, 51, .6); box-shadow: none; }
+.btn.secondary:hover { box-shadow: 0 0 15px rgba(184, 115, 51, .35); }
+
+/* 卡片 / 面板 / 弹窗：深棕渐变面 + 铜描边 + 黄铜辉光 */
+.panel, .card, .stat, .modal, .chat-wrap, .file-card, .multi-open-box {
+  background: linear-gradient(180deg, #33261a 0%, #2a1f15 100%);
+  border: 2px solid rgba(184, 115, 51, .4);
+  border-radius: 8px;
+  box-shadow: 0 0 25px rgba(181, 166, 66, .15), 0 4px 12px rgba(0, 0, 0, .4);
+}
+
+/* 面板角落黄铜铆钉 */
+.panel { position: relative; }
+.panel::before {
+  content: "";
+  position: absolute;
+  top: 6px; left: 6px;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 35%, #d8c76a, #8a7d32 60%, #5c5222);
+  box-shadow: 0 0 4px rgba(181, 166, 66, .5), inset 0 1px 1px rgba(255, 255, 255, .35);
+  pointer-events: none;
+}
+
+/* 输入框：深棕底 + 铜描边 + 奶油字，聚焦黄铜描边与辉光 */
+input, select, textarea {
+  background: #2a1f15;
+  border: 2px solid rgba(184, 115, 51, .3);
+  border-radius: 6px;
+  color: #f5f0e1;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, .35);
+}
+input:focus, select:focus, textarea:focus {
+  border-color: #b5a642;
+  box-shadow: 0 0 12px rgba(181, 166, 66, .25);
+  outline: none;
+}
+
+/* 表格：深棕表头 + 黄铜字 + 铜色分隔线 */
+th { background: #3d2b1f; color: #b5a642; }
+th, td { border-bottom: 1px solid rgba(184, 115, 51, .35); }
+
+/* 徽章：暖色底 + 铜描边 */
+.badge { border: 1px solid rgba(184, 115, 51, .35); }
+
+/* 首页侧栏元素：深棕渐变面 + 铜描边 + 微光 */
+.my-banner, .user-item, .file-chip, .tab {
+  background: linear-gradient(180deg, #33261a 0%, #2a1f15 100%);
+  border: 1px solid rgba(184, 115, 51, .35);
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(181, 166, 66, .12);
+}
+.user-item:hover { box-shadow: 0 0 15px rgba(181, 166, 66, .25); }
+.tab.active { background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%); color: #2a1f15; box-shadow: 0 0 12px rgba(181, 166, 66, .3); }
+
+/* 选中主题卡片：黄铜内辉 */
+.theme-card.selected {
+  box-shadow: inset 0 0 12px rgba(181, 166, 66, .18), 0 0 15px rgba(181, 166, 66, .25);
+}
+.theme-del { border: 1px solid rgba(184, 115, 51, .5); box-shadow: 0 0 8px rgba(193, 68, 59, .3); }
+
+/* 聊天：自己黄铜渐变气泡深棕字，对方深棕渐变气泡奶油字 */
+.msg:not(.system) { border: 1px solid rgba(184, 115, 51, .45); border-radius: 8px; }
+.msg.mine {
+  background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%);
+  color: #2a1f15;
+  box-shadow: 0 0 12px rgba(181, 166, 66, .25);
+}
+.msg.theirs {
+  background: linear-gradient(180deg, #33261a 0%, #2a1f15 100%);
+  color: #f5f0e1;
+  box-shadow: 0 0 8px rgba(181, 166, 66, .12);
+}
+.progress { background: #1f1710; border: 1px solid rgba(184, 115, 51, .35); border-radius: 999px; box-shadow: inset 0 1px 3px rgba(0, 0, 0, .4); }
+.progress > div { background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%); border-radius: 999px; }
+
+/* 通知：黄铜渐变 + 深棕字 + 铜描边 */
+.toast, .toast.error {
+  background: linear-gradient(180deg, #b5a642 0%, #8a7d32 100%);
+  color: #2a1f15;
+  border: 1px solid rgba(184, 115, 51, .5);
+  border-radius: 6px;
+  box-shadow: 0 0 15px rgba(181, 166, 66, .35);
+}
+
+/* 会话请求闪烁：黄铜辉光呼吸 */
+@keyframes request-flash {
+  0%, 100% { box-shadow: 0 0 15px rgba(181, 166, 66, .3); }
+  50% { box-shadow: 0 0 0 8px rgba(181, 166, 66, 0), 0 0 25px rgba(181, 166, 66, .5); }
+}

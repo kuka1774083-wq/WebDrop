@@ -1,0 +1,20 @@
+{
+  "name": "webdrop",
+  "version": "1.0.0",
+  "description": "WebDrop - 网页文件传输工具 (P2P / 房间)",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "start": "node src/index.js",
+    "reset-admin": "node scripts/reset-admin.js",
+    "test": "node --test test/unit.test.js test/integration.test.js",
+    "test:e2e": "node test/e2e.mjs"
+  },
+  "dependencies": {
+    "jszip": "^3.10.1",
+    "ws": "^8.18.0"
+  },
+  "engines": {
+    "node": ">=22.13.0"
+  }
+}

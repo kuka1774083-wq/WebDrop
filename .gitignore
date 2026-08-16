@@ -1,0 +1,16 @@
+node_modules/
+.pnpm-store/
+config/local.json
+*.log
+.DS_Store
+
+# 运行数据不入库，但保留公共主题包（data/themes/public）
+data/*
+!data/themes/
+data/themes/*
+!data/themes/public/
+data/themes/public/*
+!data/themes/public/**
+
+# 部署快照（仓库根目录本身即可直接构建部署）
+build/

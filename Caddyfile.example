@@ -1,0 +1,4 @@
+# 将 your-domain.com 替换为你的域名后，重命名为 Caddyfile 并启用 tls profile
+your-domain.com {
+    reverse_proxy webdrop:8080
+}

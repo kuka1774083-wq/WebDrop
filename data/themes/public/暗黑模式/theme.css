@@ -1,0 +1,76 @@
+/* ============================================================
+ * WebDrop 暗黑模式主题（dark-mode）
+ * ------------------------------------------------------------
+ * 对应风格：STYLEKIT dark-mode（暗黑模式）
+ *   - 深色背景 slate-900 #0f172a，卡片/面板 slate-800 #1e293b
+ *   - 低对比层次：正文 slate-300，标题 slate-100，弱化文字 slate-400
+ *   - 蓝色主强调 blue-600 #2563eb，悬停提亮
+ *   - 阴影改为暗色投影 + 微弱高光，避免浅色阴影发灰
+ *   - 输入框聚焦显示蓝色描边环（focus ring）
+ *   - 按钮按下轻微缩放，提供触觉确认
+ *
+ * 使用方式：将本 zip 上传到 WebDrop 即可（theme.json + theme.css）。
+ * 本主题完全通过 :root 变量换肤，无硬编码颜色；变量含义见模板注释。
+ * ============================================================ */
+:root {
+  /* 背景层次 */
+  --bg: #0f172a;            /* slate-900，页面主背景 */
+  --panel-bg: #1e293b;      /* slate-800，卡片/面板/弹窗 */
+  --bg-soft: #1e293b;       /* slate-800，表头、对方气泡 */
+  --bg-deep: #0b1220;       /* 更深凹陷色（进度条轨道等） */
+  /* 双重阴影：暗色投影 + 微弱高光（深色下用半透明） */
+  --dark: rgba(2, 6, 23, .55);
+  --light: rgba(148, 163, 184, .12);
+  /* 文字层次 */
+  --text: #cbd5e1;          /* slate-300，正文 */
+  --text-strong: #f1f5f9;   /* slate-100，标题 */
+  --text-muted: #94a3b8;    /* slate-400，弱化文字 */
+  /* 强调色 */
+  --accent: #2563eb;        /* blue-600，主操作/链接 */
+  --ok: #22c55e;            /* green-500，成功/在线 */
+  --warn: #f59e0b;          /* amber-500，警告 */
+  --danger: #ef4444;        /* red-500，危险/删除 */
+  /* 彩色背景上的文字（深色下用柔和的 slate-100，避免纯白刺眼） */
+  --on-accent: #f1f5f9;
+  --on-ok: #0b1220;
+  --on-danger: #f1f5f9;
+  /* 次要按钮 */
+  --btn-secondary-bg: #334155;   /* slate-700 */
+  --btn-secondary-text: #e2e8f0; /* slate-200 */
+  /* 分隔线 / 遮罩 / 分隔阴影 */
+  --border: rgba(148, 163, 184, .14);
+  --overlay: rgba(2, 6, 23, .66);
+  --header-shadow: rgba(2, 6, 23, .6);
+  --head-shadow: rgba(2, 6, 23, .5);
+  --input-shadow: rgba(2, 6, 23, .5);
+  --glow-ring: rgba(37, 99, 235, 0);
+  --msg-time-own: rgba(241, 245, 249, .7);
+  --dot-inset: rgba(0, 0, 0, .25);
+  /* 徽章 */
+  --badge-ok-bg: rgba(34, 197, 94, .18);
+  --badge-ok-text: #86efac;
+  --badge-warn-bg: rgba(245, 158, 11, .18);
+  --badge-warn-text: #fcd34d;
+  --badge-danger-bg: rgba(239, 68, 68, .18);
+  --badge-danger-text: #fca5a5;
+  --badge-muted-bg: #334155;
+  --badge-muted-text: #cbd5e1;
+  /* 圆角：略收，贴近 dark-mode 的 rounded-lg/xl */
+  --radius: 12px;
+  --radius-lg: 16px;
+}
+
+/* ---------- 组件级微调（dark-mode 风格要求，不属于换肤变量） ---------- */
+
+/* 按钮按下：轻微缩放，提供触觉确认 */
+.btn:active { transform: scale(.98); }
+
+/* 输入框聚焦：保留内凹阴影并叠加蓝色描边环 */
+input:focus, select:focus, textarea:focus {
+  box-shadow: var(--shadow-inset-md), 0 0 0 2px rgba(59, 130, 246, .55);
+}
+
+/* 滚动条适配深色背景 */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb { background: #334155; border-radius: 6px; }
+::-webkit-scrollbar-track { background: transparent; }

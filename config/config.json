@@ -1,0 +1,16 @@
+{
+  "host": "0.0.0.0",
+  "port": 8080,
+  "dataDir": "./data",
+  "storagePath": "./data/files",
+  "dbPath": "./data/webdrop.sqlite",
+  "adminUsername": "admin",
+  "adminPassword": "admin",
+  "defaultQuotaGb": 100,
+  "maxUploadBytes": 10737418240,
+  "heartbeatIntervalMs": 30000,
+  "heartbeatTimeoutMs": 120000,
+  "stagingThresholdBytes": 10485760,
+  "jobIntervalMs": 60000,
+  "tempUserInactiveDays": 30
+}

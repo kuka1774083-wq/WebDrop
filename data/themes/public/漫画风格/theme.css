@@ -1,0 +1,195 @@
+/* ============================================================
+ * WebDrop 漫画风格主题（漫画风格 / comic-style）
+ * ------------------------------------------------------------
+ * 对应风格：STYLEKIT comic-style（漫画风格）
+ *   - 纸张底色 #fffef0 + 半调网点纹理
+ *   - 粗墨线描边（3px solid #1a1a1a）+ 硬边投影（无模糊）
+ *   - 红黄蓝撞色：#ef4444 / #facc15 / #3b82f6 / #22c55e
+ *   - 直角为主，仅对话气泡允许圆角
+ *   - 粗体黑字、hover 位移+旋转、按下位移的夸张反馈
+ *   - 禁用渐变（纯色块 + 墨线 + 印刷偏移阴影）
+ *
+ * 说明：完全基于现有主题框架实现——:root 变量换色，
+ * 重新定义 --shadow-* 为硬边投影，组件规则补充墨线描边与网点纹理。
+ * ============================================================ */
+:root {
+  /* 背景层次：纸张米白，次级面略深 */
+  --bg: #fffef0;
+  --panel-bg: #fffef0;
+  --bg-soft: #f5f0d8;
+  --bg-deep: #e8e2c8;
+  /* 阴影：硬边印刷偏移投影（无模糊） */
+  --dark: rgba(26, 26, 26, .9);
+  --light: rgba(255, 254, 240, .9);
+  --shadow-sm: 3px 3px 0 0 #1a1a1a;
+  --shadow-md: 4px 4px 0 0 #1a1a1a;
+  --shadow-lg: 6px 6px 0 0 #1a1a1a;
+  --shadow-inset-sm: inset 2px 2px 0 0 rgba(26, 26, 26, .25);
+  --shadow-inset-md: inset 3px 3px 0 0 rgba(26, 26, 26, .25);
+  /* 文字：墨黑为主，弱化色用深灰（保持高对比） */
+  --text: #1a1a1a;
+  --text-strong: #1a1a1a;
+  --text-muted: #4a4a4a;
+  /* 撞色：红主操作、蓝次要、绿成功、黄点缀 */
+  --accent: #ef4444;
+  --ok: #22c55e;
+  --warn: #facc15;
+  --danger: #dc2626;
+  /* 彩色背景上的文字：主按钮白字，绿底用墨字保证对比 */
+  --on-accent: #ffffff;
+  --on-ok: #1a1a1a;
+  --on-danger: #ffffff;
+  /* 次要按钮：漫画蓝 */
+  --btn-secondary-bg: #3b82f6;
+  --btn-secondary-text: #ffffff;
+  /* 分隔线 / 遮罩 / 分隔阴影 */
+  --border: rgba(26, 26, 26, .45);
+  --overlay: rgba(26, 26, 26, .65);
+  --header-shadow: rgba(26, 26, 26, .4);
+  --head-shadow: rgba(26, 26, 26, .3);
+  --input-shadow: rgba(26, 26, 26, .3);
+  --glow-ring: rgba(239, 68, 68, 0);
+  --msg-time-own: rgba(255, 255, 255, .8);
+  --dot-inset: rgba(0, 0, 0, .25);
+  /* 徽章：撞色底 + 墨字 */
+  --badge-ok-bg: rgba(34, 197, 94, .25);
+  --badge-ok-text: #14532d;
+  --badge-warn-bg: rgba(250, 204, 21, .35);
+  --badge-warn-text: #713f12;
+  --badge-danger-bg: rgba(239, 68, 68, .2);
+  --badge-danger-text: #7f1d1d;
+  --badge-muted-bg: #e8e2c8;
+  --badge-muted-text: #4a4a4a;
+  /* 圆角：直角为主（对话气泡单独圆角） */
+  --radius: 0px;
+  --radius-lg: 0px;
+}
+
+/* ---------- 组件级覆盖：墨线描边、硬阴影、网点、粗体 ---------- */
+
+/* 页面：纸张底色 + 半调网点纹理 + 漫画感字体 */
+body {
+  font-family: "Comic Sans MS", "Chalkboard SE", "Arial Rounded MT Bold", "PingFang SC", "Microsoft YaHei", system-ui, sans-serif;
+  background-color: #fffef0;
+  background-image: radial-gradient(rgba(26, 26, 26, .09) 1px, transparent 1.7px);
+  background-size: 14px 14px;
+}
+h1, h2, h3, .brand, .stat .v { font-weight: 900; letter-spacing: .5px; }
+
+/* 页头：纸张底 + 粗墨线下边 */
+header {
+  background: #fffef0;
+  border-bottom: 4px solid #1a1a1a;
+  box-shadow: 0 4px 0 0 rgba(26, 26, 26, .25);
+}
+.brand { font-weight: 900; }
+
+/* 导航：选中态墨黑底 + 黄色硬投影 */
+nav a.active, #nav-user-area a.active {
+  background: #1a1a1a;
+  color: #fffef0;
+  font-weight: 900;
+  box-shadow: 3px 3px 0 0 #facc15;
+}
+nav a:hover, #nav-user-area a:hover { box-shadow: 3px 3px 0 0 #1a1a1a; }
+
+/* 按钮：撞色 + 粗墨线 + 硬投影，hover 位移旋转，按下位移 */
+.btn {
+  background: #ef4444;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+  color: #fff;
+  font-weight: 900;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 0 #1a1a1a;
+  transition: all .12s ease;
+}
+.btn:hover {
+  transform: translate(2px, 2px) rotate(-2deg);
+  box-shadow: 2px 2px 0 0 #1a1a1a;
+  filter: brightness(1.06);
+}
+.btn:active { transform: translate(4px, 4px); box-shadow: none; }
+.btn.ok { background: #22c55e; color: #1a1a1a; }
+.btn.danger { background: #dc2626; color: #fff; }
+.btn.secondary { background: #3b82f6; color: #fff; }
+
+/* 卡片 / 面板 / 弹窗：纸张底 + 粗墨线 + 硬投影 */
+.panel, .card, .stat, .modal, .chat-wrap, .file-card, .multi-open-box {
+  background: #fffef0;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+  box-shadow: 6px 6px 0 0 #1a1a1a;
+}
+
+/* 输入框：纸张底 + 粗墨线，聚焦硬投影 */
+input, select, textarea {
+  background: #fffef0;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+  font-weight: 700;
+  box-shadow: none;
+}
+input:focus, select:focus, textarea:focus {
+  box-shadow: 4px 4px 0 0 #1a1a1a;
+  outline: none;
+}
+
+/* 表格：墨线分隔 + 柠檬黄表头 */
+th { background: #facc15; }
+th, td { border-bottom: 2px solid #1a1a1a; }
+
+/* 徽章：撞色底 + 墨线描边 */
+.badge { border: 2px solid #1a1a1a; border-radius: 0; }
+.badge.ok { border-color: #14532d; }
+.badge.warn { border-color: #713f12; }
+.badge.danger { border-color: #7f1d1d; }
+.badge.muted { border-color: #4a4a4a; }
+
+/* 首页侧栏元素：纸张底 + 墨线 + 硬投影 */
+.my-banner, .user-item, .file-chip, .tab {
+  background: #fffef0;
+  border: 2px solid #1a1a1a;
+  border-radius: 0;
+  box-shadow: 3px 3px 0 0 rgba(26, 26, 26, .4);
+}
+.user-item:hover { box-shadow: 4px 4px 0 0 #1a1a1a; transform: translate(-1px, -1px); }
+.user-item:active { box-shadow: inset 2px 2px 0 0 rgba(26, 26, 26, .25); }
+.tab.active { background: #1a1a1a; color: #fffef0; box-shadow: 3px 3px 0 0 #facc15; }
+
+/* 选中主题卡片：墨线内凹 + 黄色硬投影 */
+.theme-card.selected {
+  box-shadow: inset 3px 3px 0 0 rgba(26, 26, 26, .25), 3px 3px 0 0 #facc15;
+}
+.theme-del { border: 2px solid #1a1a1a; box-shadow: 2px 2px 0 0 rgba(26, 26, 26, .4); }
+
+/* 对话气泡：红底自己 / 纸底对方，墨线 + 圆角 + 硬投影 */
+.msg:not(.system) { border: 3px solid #1a1a1a; border-radius: 14px; }
+.msg.mine {
+  background: #ef4444;
+  color: #fff;
+  box-shadow: 4px 4px 0 0 #1a1a1a;
+}
+.msg.theirs {
+  background: #fffef0;
+  color: #1a1a1a;
+  box-shadow: 4px 4px 0 0 rgba(26, 26, 26, .35);
+}
+.msg.mine .msg-time { color: rgba(255, 255, 255, .8); }
+.progress { background: #e8e2c8; border: 2px solid #1a1a1a; border-radius: 0; box-shadow: none; }
+.progress > div { background: #ef4444; border-radius: 0; }
+
+/* 通知：红底白字 + 墨线 + 硬投影 */
+.toast, .toast.error {
+  background: #ef4444;
+  color: #fff;
+  border: 3px solid #1a1a1a;
+  border-radius: 0;
+  box-shadow: 4px 4px 0 0 rgba(26, 26, 26, .5);
+}
+
+/* 会话请求闪烁：墨线硬投影 */
+@keyframes request-flash {
+  0%, 100% { box-shadow: 4px 4px 0 0 #1a1a1a; }
+  50% { box-shadow: 0 0 0 8px rgba(239, 68, 68, 0), 6px 6px 0 0 #1a1a1a; }
+}
