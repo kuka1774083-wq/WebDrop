@@ -2040,9 +2040,41 @@ export function viewRoom(container, number) {
 
     async function deleteFolder(f) {
       if (!isRoomOwner) return toast('只有房主可以管理文件夹', 'error');
-      if (!(await confirmDialog('删除文件夹', `确定删除文件夹「${f.name}」吗？其中的文件将移回根目录。`, '删除', true))) return;
+      const otherFolders = folders.filter((x) => x.id !== f.id);
+      const modeSel = el('select', {}, [
+        el('option', { value: 'root', text: '移回根目录' }),
+        el('option', { value: 'delete', text: '直接删除文件夹中的文件' }),
+        ...(otherFolders.length ? [el('option', { value: 'move', text: '移动到其他文件夹' })] : []),
+      ]);
+      const moveSel = el('select', {}, otherFolders.map((x) => el('option', { value: String(x.id), text: x.name })));
+      const moveWrap = el('div', { class: 'form-group hidden', style: 'margin-top:8px' }, [
+        el('label', { text: '目标文件夹' }),
+        moveSel,
+      ]);
+      modeSel.addEventListener('change', () => moveWrap.classList.toggle('hidden', modeSel.value !== 'move'));
+      const choice = await new Promise((resolve) => {
+        const m = modal({
+          title: `删除文件夹「${f.name}」`,
+          body: el('div', {}, [
+            el('div', { class: 'form-group' }, [el('label', { text: '文件夹中的文件' }), modeSel]),
+            moveWrap,
+          ]),
+          actions: [
+            { label: '取消', class: 'secondary', onClick: () => { resolve(null); m.close(); } },
+            { label: '确定', class: 'danger', onClick: () => { resolve({ mode: modeSel.value, targetFolderId: moveSel.value }); m.close(); } },
+          ],
+        });
+      });
+      if (!choice) return;
+      if (choice.mode === 'move' && !choice.targetFolderId) return toast('请选择目标文件夹', 'error');
+      if (choice.mode === 'delete') {
+        if (!(await confirmDialog('确认删除', '文件夹中的文件将被永久删除，此操作不可恢复。确定继续吗？', '删除', true))) return;
+      }
       try {
-        await api(`/api/rooms/${encodeURIComponent(number)}/folders/${f.id}`, { method: 'DELETE' });
+        await api(`/api/rooms/${encodeURIComponent(number)}/folders/${f.id}`, {
+          method: 'DELETE',
+          body: { mode: choice.mode, targetFolderId: choice.mode === 'move' ? Number(choice.targetFolderId) : undefined },
+        });
         if (rfState.folderId === f.id) rfState.folderId = null;
         refresh();
       } catch (e) { toast(e.message, 'error'); }

@@ -597,8 +597,24 @@ export function roomRoutes({ db, cfg, service, hub }) {
     if (authErr) return sendJson(res, authErr === '身份无效' ? 401 : authErr === '房间不存在' ? 404 : 403, { error: authErr });
     const folder = db.prepare('SELECT * FROM room_folders WHERE id = ? AND room_id = ?').get(Number(req.params.folderId), String(room.id));
     if (!folder) return sendJson(res, 404, { error: '文件夹不存在' });
-    // 删除文件夹时文件回到根目录，避免误删数据
-    db.prepare('UPDATE files SET folder_id = NULL WHERE folder_id = ?').run(folder.id);
+    const b = await readJson(req);
+    const mode = b.mode || 'root'; // root=移回根目录 / delete=直接删除 / move=移动到其他文件夹
+    if (mode === 'delete') {
+      const rows = db
+        .prepare("SELECT id FROM files WHERE scope = 'room' AND ref_id = ? AND folder_id = ? AND status = 'active'")
+        .all(String(room.id), folder.id);
+      for (const row of rows) service.deleteFile(row.id, 'folder_deleted');
+    } else if (mode === 'move') {
+      const targetFolderId = b.targetFolderId ? Number(b.targetFolderId) : null;
+      const target = targetFolderId != null
+        ? db.prepare('SELECT id FROM room_folders WHERE id = ? AND room_id = ?').get(targetFolderId, String(room.id))
+        : null;
+      if (!target) return sendJson(res, 400, { error: '目标文件夹不存在' });
+      db.prepare('UPDATE files SET folder_id = ? WHERE folder_id = ?').run(targetFolderId, folder.id);
+    } else {
+      // 默认：文件移回根目录
+      db.prepare('UPDATE files SET folder_id = NULL WHERE folder_id = ?').run(folder.id);
+    }
     db.prepare('DELETE FROM room_folders WHERE id = ?').run(folder.id);
     sendJson(res, 200, { ok: true });
   });

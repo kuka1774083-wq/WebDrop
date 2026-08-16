@@ -123,6 +123,7 @@ export const DELETE_REASONS = {
   room_destroyed: '房间销毁',
   admin_deleted: '管理员删除',
   user_deleted: '用户已删除',
+  folder_deleted: '文件夹删除',
 };
 
 export function deleteReasonLabel(reason) {
