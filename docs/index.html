@@ -38,6 +38,7 @@
       border-left: 4px solid var(--accent); margin-bottom: 20px;
     }
     .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
     .card {
       background: var(--panel); border-radius: var(--radius); overflow: hidden;
       box-shadow: 8px 8px 16px rgba(0,0,0,.12), -8px -8px 16px rgba(255,255,255,.8);
@@ -60,9 +61,29 @@
       margin-top: 12px; padding: 12px 16px; border-radius: 12px;
       background: #fff7e6; border: 1px solid #ffd591; color: #7a4d00; font-size: 14px;
     }
+    .carousel { position: relative; overflow: hidden; border-radius: var(--radius); }
+    .carousel-track { display: flex; transition: transform .5s ease; }
+    .carousel-slide { flex: none; width: 100%; }
+    .carousel-slide .card { max-width: 860px; margin: 0 auto; }
+    .carousel-slide .card img { max-height: 480px; object-fit: cover; }
+    .carousel-btn {
+      position: absolute; top: 50%; transform: translateY(-50%);
+      width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer;
+      background: var(--panel); color: var(--text); font-size: 20px;
+      box-shadow: 4px 4px 10px rgba(0,0,0,.15), -4px -4px 10px rgba(255,255,255,.7);
+      z-index: 2;
+    }
+    .carousel-btn.prev { left: 8px; }
+    .carousel-btn.next { right: 8px; }
+    .carousel-dots { display: flex; justify-content: center; gap: 8px; margin-top: 14px; }
+    .carousel-dots button {
+      width: 10px; height: 10px; border-radius: 50%; border: 0; cursor: pointer;
+      background: rgba(0,0,0,.18); transition: background .2s;
+    }
+    .carousel-dots button.active { background: var(--accent); }
     footer { text-align: center; color: var(--muted); margin-top: 56px; font-size: 14px; }
     @media (max-width: 760px) {
-      .grid, .feat { grid-template-columns: 1fr; }
+      .grid, .grid3, .feat { grid-template-columns: 1fr; }
       header h1 { font-size: 30px; }
     }
   </style>
@@ -77,25 +98,43 @@
     </header>
 
     <section>
-      <h2>界面预览</h2>
+      <h2>界面预览 · 桌面端</h2>
       <div class="grid">
         <div class="card"><img src="screenshots/p2p-chat.png" alt="点对点会话"><div class="cap">点对点会话 · P2P 直连</div></div>
         <div class="card"><img src="screenshots/room-chat.png" alt="房间聊天"><div class="cap">房间聊天</div></div>
         <div class="card"><img src="screenshots/room-files.png" alt="房间文件"><div class="cap">房间文件 · 缩略图模式</div></div>
         <div class="card"><img src="screenshots/admin.png" alt="管理台"><div class="cap">管理台仪表盘</div></div>
         <div class="card"><img src="screenshots/p2p-home.png" alt="在线列表"><div class="cap">在线设备与在线用户</div></div>
+        <div class="card"><img src="screenshots/web-settings.png" alt="用户设置"><div class="cap">用户设置 · 主题与设备</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>界面预览 · 手机端</h2>
+      <div class="grid3">
         <div class="card"><img src="screenshots/mobile-room.png" alt="手机端"><div class="cap">手机端房间</div></div>
+        <div class="card"><img src="screenshots/mobile-p2p.png" alt="手机端点对点"><div class="cap">手机端点对点首页</div></div>
+        <div class="card"><img src="screenshots/mobile-room-files.png" alt="手机端房间文件"><div class="cap">手机端房间文件</div></div>
+        <div class="card"><img src="screenshots/mobile-settings.png" alt="手机端设置"><div class="cap">手机端设置</div></div>
       </div>
     </section>
 
     <section>
       <h2>主题系统</h2>
-      <p style="color:var(--muted);margin-bottom:16px">内置默认新拟物派与 6 套公共主题，支持自制主题包并一键切换。</p>
-      <div class="grid">
-        <div class="card"><img src="screenshots/theme-default.png" alt="默认主题"><div class="cap">默认主题（新拟物派）</div></div>
-        <div class="card"><img src="screenshots/theme-dark.png" alt="暗黑模式"><div class="cap">暗黑模式</div></div>
-        <div class="card"><img src="screenshots/theme-memphis.png" alt="孟菲斯风格"><div class="cap">孟菲斯风格</div></div>
-        <div class="card"><img src="screenshots/theme-ghibli.png" alt="吉卜力风格"><div class="cap">吉卜力风格</div></div>
+      <p style="color:var(--muted);margin-bottom:16px">内置默认新拟物派与 6 套公共主题（暗黑模式、孟菲斯风格、拟物风格、漫画风格、蒸汽朋克、吉卜力风格），支持自制主题包并一键切换。左右切换或自动轮播查看：</p>
+      <div class="carousel" id="themeCarousel">
+        <div class="carousel-track">
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-default.png" alt="默认主题"><div class="cap">默认主题（新拟物派）</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-dark.png" alt="暗黑模式"><div class="cap">暗黑模式</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-memphis.png" alt="孟菲斯风格"><div class="cap">孟菲斯风格</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-skeuo.png" alt="拟物风格"><div class="cap">拟物风格</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-comic.png" alt="漫画风格"><div class="cap">漫画风格</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-steampunk.png" alt="蒸汽朋克"><div class="cap">蒸汽朋克</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/theme-ghibli.png" alt="吉卜力风格"><div class="cap">吉卜力风格</div></div></div>
+        </div>
+        <button class="carousel-btn prev" aria-label="上一张">‹</button>
+        <button class="carousel-btn next" aria-label="下一张">›</button>
+        <div class="carousel-dots"></div>
       </div>
     </section>
 
@@ -130,5 +169,40 @@ docker run -d --name webdrop --restart always \
 
     <footer>WebDrop · GitHub Pages 展示页 · 源码见 <a href="https://github.com/kuka1774083-wq/WebDrop">kuka1774083-wq/WebDrop</a></footer>
   </div>
+  <script>
+    (function () {
+      var carousel = document.getElementById('themeCarousel');
+      var track = carousel.querySelector('.carousel-track');
+      var slides = carousel.querySelectorAll('.carousel-slide');
+      var dotsBox = carousel.querySelector('.carousel-dots');
+      var index = 0;
+      var timer = null;
+      var total = slides.length;
+      for (var i = 0; i < total; i++) {
+        (function (i) {
+          var d = document.createElement('button');
+          d.setAttribute('aria-label', '第 ' + (i + 1) + ' 张');
+          if (i === 0) d.classList.add('active');
+          d.addEventListener('click', function () { go(i); restart(); });
+          dotsBox.append(d);
+        })(i);
+      }
+      var dots = dotsBox.querySelectorAll('button');
+      function go(i) {
+        index = (i + total) % total;
+        track.style.transform = 'translateX(-' + index * 100 + '%)';
+        for (var k = 0; k < total; k++) dots[k].classList.toggle('active', k === index);
+      }
+      function restart() {
+        if (timer) clearInterval(timer);
+        timer = setInterval(function () { go(index + 1); }, 4000);
+      }
+      carousel.querySelector('.prev').addEventListener('click', function () { go(index - 1); restart(); });
+      carousel.querySelector('.next').addEventListener('click', function () { go(index + 1); restart(); });
+      carousel.addEventListener('mouseenter', function () { if (timer) clearInterval(timer); });
+      carousel.addEventListener('mouseleave', restart);
+      restart();
+    })();
+  </script>
 </body>
 </html>

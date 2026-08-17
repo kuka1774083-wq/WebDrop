@@ -6,15 +6,15 @@ WebDrop 是一个无需安装客户端、打开浏览器即可使用的文件传
 
 | 点对点会话 | 房间聊天 |
 | --- | --- |
-| ![P2P 会话](docs/screenshots/p2p-chat.png) | ![房间聊天](docs/screenshots/room-chat.png) |
+| ![P2P 会话](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/p2p-chat.png?raw=true) | ![房间聊天](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/room-chat.png?raw=true) |
 
 | 房间文件（缩略图模式） | 管理台仪表盘 |
 | --- | --- |
-| ![房间文件](docs/screenshots/room-files.png) | ![管理台](docs/screenshots/admin.png) |
+| ![房间文件](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/room-files.png?raw=true) | ![管理台](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/admin.png?raw=true) |
 
 | 点对点在线列表 | 手机端房间 |
 | --- | --- |
-| ![在线列表](docs/screenshots/p2p-home.png) | ![手机端](docs/screenshots/mobile-room.png) |
+| ![在线列表](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/p2p-home.png?raw=true) | ![手机端](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/mobile-room.png?raw=true) |
 
 ## 功能特性
 
@@ -47,11 +47,11 @@ WebDrop 默认采用新拟物派（Neumorphism）风格，并内置了 6 套风�
 
 | 默认主题（新拟物派） | 暗黑模式 |
 | --- | --- |
-| ![默认主题](docs/screenshots/theme-default.png) | ![暗黑模式](docs/screenshots/theme-dark.png) |
+| ![默认主题](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/theme-default.png?raw=true) | ![暗黑模式](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/theme-dark.png?raw=true) |
 
 | 孟菲斯风格 | 吉卜力风格 |
 | --- | --- |
-| ![孟菲斯风格](docs/screenshots/theme-memphis.png) | ![吉卜力风格](docs/screenshots/theme-ghibli.png) |
+| ![孟菲斯风格](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/theme-memphis.png?raw=true) | ![吉卜力风格](https://github.com/kuka1774083-wq/WebDrop/blob/main/docs/screenshots/theme-ghibli.png?raw=true) |
 
 ### 自制主题
 
@@ -186,22 +186,7 @@ curl http://127.0.0.1:60003/api/health
 
 在群晖、威联通等品牌 NAS 或**飞牛 OS（fnOS）**的 Docker 图形界面中重新构建时，界面可能会直接复用上次构建的旧镜像缓存，导致"重新构建"后运行的仍是旧版本。此时需要在**镜像管理**里找到 WebDrop 对应的旧镜像，点击**清除（清理）**删除它，然后再回到**项目/容器**页面重新选择并**构建**，即可得到最新版本。删除镜像不会影响 `config/` 与 `data/` 挂载目录中的数据。
 
-## GitHub 部署与访问
-
-### 展示页（GitHub Pages）
-
-仓库启用了 GitHub Pages 静态展示页，可直接访问：
-
-> <https://kuka1774083-wq.github.io/WebDrop/>
-
-展示页包含界面截图、功能与部署指引。注意：GitHub Pages 只能托管静态文件，**无法运行 Node.js 后端**，因此展示页仅为界面预览，实时聊天/文件传输等完整功能需按下方 Docker 方式部署到自己的服务器或 NAS。
-
-如果访问展示页显示 404，说明 Pages 尚未启用（仅需一次性设置）：
-
-1. 打开仓库 **Settings → Pages**；
-2. **Source** 选择 **Deploy from a branch**；
-3. **Branch** 选择 `main`，目录选择 `/docs`，点击 **Save**；
-4. 等待 1-2 分钟后访问上面的地址即可。
+## GitHub 部署（GHCR 自动构建镜像）
 
 ### 自动构建 Docker 镜像（GitHub Container Registry）
 
