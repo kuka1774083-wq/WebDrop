@@ -65,7 +65,7 @@
     .carousel-track { display: flex; transition: transform .5s ease; }
     .carousel-slide { flex: none; width: 100%; }
     .carousel-slide .card { max-width: 860px; margin: 0 auto; }
-    .carousel-slide .card img { max-height: 480px; object-fit: cover; }
+    .carousel-slide .card img { max-height: 440px; object-fit: cover; }
     .carousel-btn {
       position: absolute; top: 50%; transform: translateY(-50%);
       width: 42px; height: 42px; border: 0; border-radius: 50%; cursor: pointer;
@@ -82,9 +82,12 @@
     }
     .carousel-dots button.active { background: var(--accent); }
     footer { text-align: center; color: var(--muted); margin-top: 56px; font-size: 14px; }
+    footer a, .author-line a { color: var(--accent); text-decoration: none; }
+    .author-line { margin-top: 8px; font-size: 14px; color: var(--muted); }
     @media (max-width: 760px) {
       .grid, .grid3, .feat { grid-template-columns: 1fr; }
       header h1 { font-size: 30px; }
+      .btn { display: block; max-width: 260px; margin: 12px auto 0; }
     }
   </style>
 </head>
@@ -93,19 +96,39 @@
     <header>
       <h1>📤 WebDrop</h1>
       <p>无需安装客户端、打开浏览器即可使用的文件传输与聊天工具。WebRTC P2P 直连 + 服务器中转兜底，单容器 Docker 私有化部署。</p>
-      <a class="btn primary" href="https://github.com/kuka1774083-wq/WebDrop">GitHub 仓库</a>
-      <a class="btn" href="#deploy">部署指南</a>
+      <div>
+        <a class="btn primary" href="https://github.com/kuka1774083-wq/WebDrop">GitHub 仓库</a>
+        <a class="btn" href="#deploy">部署指南</a>
+        <a class="btn" href="https://space.bilibili.com/41158746" target="_blank" rel="noopener">作者主页 · MEMUZE</a>
+      </div>
     </header>
 
     <section>
+      <h2>核心功能</h2>
+      <div class="feat">
+        <div><h3>⚡ P2P 直连</h3><p>WebRTC DataChannel，IPv6 优先，同局域网自动识别；失败自动回退服务器中转（不落盘）。</p></div>
+        <div><h3>💬 房间模式</h3><p>文字、语音、照片、视频、文件；文件夹管理、过期销毁、上传/下载权限控制。</p></div>
+        <div><h3>🛡️ 管理后台</h3><p>实时监控、文件管理、用户审批、房间设置、全局主题与设备管理。</p></div>
+        <div><h3>📱 全端适配</h3><p>桌面端与手机端响应式设计，移动端文件选择器、语音录制均有专门优化。</p></div>
+        <div><h3>🎨 主题系统</h3><p>内置 6 套公共主题，支持 zip 主题包自制、预览、上传与全局默认。</p></div>
+        <div><h3>🐳 单容器部署</h3><p>Docker 一条命令启动，config 与 data 挂载宿主机，数据持久、升级迁移简单。</p></div>
+      </div>
+    </section>
+
+    <section>
       <h2>界面预览 · 桌面端</h2>
-      <div class="grid">
-        <div class="card"><img src="screenshots/p2p-chat.png" alt="点对点会话"><div class="cap">点对点会话 · P2P 直连</div></div>
-        <div class="card"><img src="screenshots/room-chat.png" alt="房间聊天"><div class="cap">房间聊天</div></div>
-        <div class="card"><img src="screenshots/room-files.png" alt="房间文件"><div class="cap">房间文件 · 缩略图模式</div></div>
-        <div class="card"><img src="screenshots/admin.png" alt="管理台"><div class="cap">管理台仪表盘</div></div>
-        <div class="card"><img src="screenshots/p2p-home.png" alt="在线列表"><div class="cap">在线设备与在线用户</div></div>
-        <div class="card"><img src="screenshots/web-settings.png" alt="用户设置"><div class="cap">用户设置 · 主题与设备</div></div>
+      <div class="carousel" id="webCarousel">
+        <div class="carousel-track">
+          <div class="carousel-slide"><div class="card"><img src="screenshots/p2p-home.png" alt="在线设备与在线用户"><div class="cap">在线设备与在线用户</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/p2p-chat.png" alt="点对点会话"><div class="cap">点对点会话 · P2P 直连</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/room-chat.png" alt="房间聊天"><div class="cap">房间聊天</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/room-files.png" alt="房间文件"><div class="cap">房间文件 · 缩略图模式</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/admin.png" alt="管理台"><div class="cap">管理台仪表盘</div></div></div>
+          <div class="carousel-slide"><div class="card"><img src="screenshots/web-settings.png" alt="用户设置"><div class="cap">用户设置 · 主题与设备</div></div></div>
+        </div>
+        <button class="carousel-btn prev" aria-label="上一张">‹</button>
+        <button class="carousel-btn next" aria-label="下一张">›</button>
+        <div class="carousel-dots"></div>
       </div>
     </section>
 
@@ -137,18 +160,6 @@
       </div>
     </section>
 
-    <section>
-      <h2>核心功能</h2>
-      <div class="feat">
-        <div><h3>⚡ P2P 直连</h3><p>WebRTC DataChannel，IPv6 优先，同局域网自动识别；失败自动回退服务器中转（不落盘）。</p></div>
-        <div><h3>💬 房间模式</h3><p>文字、语音、照片、视频、文件；文件夹管理、过期销毁、上传/下载权限控制。</p></div>
-        <div><h3>🛡️ 管理后台</h3><p>实时监控、文件管理、用户审批、房间设置、全局主题与设备管理。</p></div>
-        <div><h3>📱 全端适配</h3><p>桌面端与手机端响应式设计，移动端文件选择器、语音录制均有专门优化。</p></div>
-        <div><h3>🎨 主题系统</h3><p>内置 6 套公共主题，支持 zip 主题包自制、预览、上传与全局默认。</p></div>
-        <div><h3>🐳 单容器部署</h3><p>Docker 一条命令启动，config 与 data 挂载宿主机，数据持久、升级迁移简单。</p></div>
-      </div>
-    </section>
-
     <section id="deploy">
       <h2>部署指南</h2>
       <p style="color:var(--muted)">完整功能（WebSocket / WebRTC / SQLite）需要一台自己的服务器或 NAS，推荐用 Docker 部署：</p>
@@ -166,41 +177,47 @@ docker run -d --name webdrop --restart always \
       <div class="note">⚠️ 本页面由 GitHub Pages 托管，仅作静态展示；由于 Pages 无法运行 Node.js 后端，实时聊天/传输功能需按上方 Docker 方式部署后使用。</div>
     </section>
 
-    <footer>WebDrop · GitHub Pages 展示页 · 源码见 <a href="https://github.com/kuka1774083-wq/WebDrop">kuka1774083-wq/WebDrop</a></footer>
+    <footer>
+      <div>WebDrop · GitHub Pages 展示页 · 源码见 <a href="https://github.com/kuka1774083-wq/WebDrop">kuka1774083-wq/WebDrop</a></div>
+      <div class="author-line">作者主页：<a href="https://space.bilibili.com/41158746" target="_blank" rel="noopener">MEMUZE（Bilibili）</a></div>
+    </footer>
   </div>
   <script>
     (function () {
-      var carousel = document.getElementById('themeCarousel');
-      var track = carousel.querySelector('.carousel-track');
-      var slides = carousel.querySelectorAll('.carousel-slide');
-      var dotsBox = carousel.querySelector('.carousel-dots');
-      var index = 0;
-      var timer = null;
-      var total = slides.length;
-      for (var i = 0; i < total; i++) {
-        (function (i) {
-          var d = document.createElement('button');
-          d.setAttribute('aria-label', '第 ' + (i + 1) + ' 张');
-          if (i === 0) d.classList.add('active');
-          d.addEventListener('click', function () { go(i); restart(); });
-          dotsBox.append(d);
-        })(i);
+      function initCarousel(root) {
+        var track = root.querySelector('.carousel-track');
+        var slides = root.querySelectorAll('.carousel-slide');
+        var dotsBox = root.querySelector('.carousel-dots');
+        var index = 0;
+        var timer = null;
+        var total = slides.length;
+        for (var i = 0; i < total; i++) {
+          (function (i) {
+            var d = document.createElement('button');
+            d.setAttribute('aria-label', '第 ' + (i + 1) + ' 张');
+            if (i === 0) d.classList.add('active');
+            d.addEventListener('click', function () { go(i); restart(); });
+            dotsBox.append(d);
+          })(i);
+        }
+        var dots = dotsBox.querySelectorAll('button');
+        function go(i) {
+          index = (i + total) % total;
+          track.style.transform = 'translateX(-' + index * 100 + '%)';
+          for (var k = 0; k < total; k++) dots[k].classList.toggle('active', k === index);
+        }
+        function restart() {
+          if (timer) clearInterval(timer);
+          timer = setInterval(function () { go(index + 1); }, 4000);
+        }
+        root.querySelector('.prev').addEventListener('click', function () { go(index - 1); restart(); });
+        root.querySelector('.next').addEventListener('click', function () { go(index + 1); restart(); });
+        root.addEventListener('mouseenter', function () { if (timer) clearInterval(timer); });
+        root.addEventListener('mouseleave', restart);
+        restart();
       }
-      var dots = dotsBox.querySelectorAll('button');
-      function go(i) {
-        index = (i + total) % total;
-        track.style.transform = 'translateX(-' + index * 100 + '%)';
-        for (var k = 0; k < total; k++) dots[k].classList.toggle('active', k === index);
-      }
-      function restart() {
-        if (timer) clearInterval(timer);
-        timer = setInterval(function () { go(index + 1); }, 4000);
-      }
-      carousel.querySelector('.prev').addEventListener('click', function () { go(index - 1); restart(); });
-      carousel.querySelector('.next').addEventListener('click', function () { go(index + 1); restart(); });
-      carousel.addEventListener('mouseenter', function () { if (timer) clearInterval(timer); });
-      carousel.addEventListener('mouseleave', restart);
-      restart();
+      initCarousel(document.getElementById('webCarousel'));
+      initCarousel(document.getElementById('themeCarousel'));
     })();
   </script>
 </body>

@@ -2,6 +2,8 @@
 
 WebDrop 是一个无需安装客户端、打开浏览器即可使用的文件传输与聊天工具。支持**点对点（P2P）**与**房间**两种模式，采用 WebSocket + WebRTC DataChannel 实现直连，失败自动回退服务器流式中转（不落盘）；单容器 Docker 部署，配置与数据全部挂载在宿主机上，可轻松私有化部署。
 
+作者主页：[MEMUZE（Bilibili）](https://space.bilibili.com/41158746)
+
 ## 效果截图
 
 | 点对点会话 | 房间聊天 |
