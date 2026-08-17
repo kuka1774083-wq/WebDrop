@@ -112,7 +112,7 @@ docker run -d --name webdrop --restart always \
 
 ```bash
 npm install
-node src/index.js
+node /src/index.js
 ```
 
 ### 数据持久化与迁移
