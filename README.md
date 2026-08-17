@@ -4,6 +4,8 @@ WebDrop 是一个无需安装客户端、打开浏览器即可使用的文件传
 
 作者主页：[MEMUZE（Bilibili）](https://space.bilibili.com/41158746)
 
+国内仓库（Gitee）：[https://gitee.com/memuze/WebDrop](https://gitee.com/memuze/WebDrop)
+
 ## 效果截图
 
 | 点对点会话 | 房间聊天 |
