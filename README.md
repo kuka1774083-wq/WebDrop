@@ -106,6 +106,12 @@ docker run -d --name webdrop --restart always \
   webdrop
 ```
 
+### 方式三：本地运行（需要手动安装node.js以及管理依赖）
+
+```bash
+sudo node /src/server.js
+```
+
 ### 数据持久化与迁移
 
 | 宿主机目录 | 容器内 | 用途 |
