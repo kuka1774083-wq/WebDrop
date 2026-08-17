@@ -6,15 +6,15 @@ WebDrop 是一个无需安装客户端、打开浏览器即可使用的文件传
 
 | 点对点会话 | 房间聊天 |
 | --- | --- |
-| ![P2P 会话](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/p2p-chat.png) | ![房间聊天](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/room-chat.png) |
+| ![P2P 会话](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/p2p-chat.png) | ![房间聊天](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/room-chat.png) |
 
 | 房间文件（缩略图模式） | 管理台仪表盘 |
 | --- | --- |
-| ![房间文件](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/room-files.png) | ![管理台](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/admin.png) |
+| ![房间文件](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/room-files.png) | ![管理台](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/admin.png) |
 
 | 点对点在线列表 | 手机端房间 |
 | --- | --- |
-| ![在线列表](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/p2p-home.png) | ![手机端](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/mobile-room.png) |
+| ![在线列表](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/p2p-home.png) | ![手机端](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/mobile-room.png) |
 
 ## 功能特性
 
@@ -47,11 +47,11 @@ WebDrop 默认采用新拟物派（Neumorphism）风格，并内置了 6 套风�
 
 | 默认主题（新拟物派） | 暗黑模式 |
 | --- | --- |
-| ![默认主题](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/theme-default.png) | ![暗黑模式](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/theme-dark.png) |
+| ![默认主题](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/theme-default.png) | ![暗黑模式](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/theme-dark.png) |
 
 | 孟菲斯风格 | 吉卜力风格 |
 | --- | --- |
-| ![孟菲斯风格](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/theme-memphis.png) | ![吉卜力风格](https://github.com/kuka1774083-wq/WebDrop/tree/main/docs/screenshots/theme-ghibli.png) |
+| ![孟菲斯风格](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/theme-memphis.png) | ![吉卜力风格](https://github.com/kuka1774083-wq/WebDrop/docs/screenshots/theme-ghibli.png) |
 
 ### 自制主题
 
