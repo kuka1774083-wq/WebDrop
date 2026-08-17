@@ -185,6 +185,57 @@ curl http://127.0.0.1:60003/api/health
 
 在群晖、威联通等品牌 NAS 或**飞牛 OS（fnOS）**的 Docker 图形界面中重新构建时，界面可能会直接复用上次构建的旧镜像缓存，导致"重新构建"后运行的仍是旧版本。此时需要在**镜像管理**里找到 WebDrop 对应的旧镜像，点击**清除（清理）**删除它，然后再回到**项目/容器**页面重新选择并**构建**，即可得到最新版本。删除镜像不会影响 `config/` 与 `data/` 挂载目录中的数据。
 
+## GitHub 部署与访问
+
+### 展示页（GitHub Pages）
+
+仓库启用了 GitHub Pages 静态展示页，可直接访问：
+
+> <https://kuka1774083-wq.github.io/WebDrop/>
+
+展示页包含界面截图、功能与部署指引。注意：GitHub Pages 只能托管静态文件，**无法运行 Node.js 后端**，因此展示页仅为界面预览，实时聊天/文件传输等完整功能需按下方 Docker 方式部署到自己的服务器或 NAS。
+
+如果访问展示页显示 404，说明 Pages 尚未启用（仅需一次性设置）：
+
+1. 打开仓库 **Settings → Pages**；
+2. **Source** 选择 **Deploy from a branch**；
+3. **Branch** 选择 `main`，目录选择 `/docs`，点击 **Save**；
+4. 等待 1-2 分钟后访问上面的地址即可。
+
+### 自动构建 Docker 镜像（GitHub Container Registry）
+
+仓库内置 GitHub Actions 工作流（`.github/workflows/docker-image.yml`）：每次推送 `main` 分支（或打 `v*` 标签、手动触发）都会自动构建镜像并发布到 GitHub Container Registry：
+
+```text
+ghcr.io/kuka1774083-wq/webdrop
+```
+
+使用自动构建的镜像部署（无需在服务器上克隆源码构建）：
+
+```bash
+docker pull ghcr.io/kuka1774083-wq/webdrop:latest
+docker run -d --name webdrop --restart always \
+  -p 60003:8080 \
+  -v "$(pwd)/config:/app/config" \
+  -v "$(pwd)/data:/app/data" \
+  ghcr.io/kuka1774083-wq/webdrop:latest
+```
+
+docker compose 方式（把 `build: .` 替换为镜像）：
+
+```yaml
+services:
+  webdrop:
+    image: ghcr.io/kuka1774083-wq/webdrop:latest
+    container_name: webdrop
+    restart: always
+    ports:
+      - "60003:8080"
+    volumes:
+      - ./config:/app/config
+      - ./data:/app/data
+```
+
 ## 配置
 
 配置文件 `config/config.json`（支持 `WEBDROP_*` 环境变量覆盖，管理后台设置优先）：

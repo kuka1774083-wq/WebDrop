@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebDrop — 网页文件传输工具</title>
+  <meta name="description" content="无需安装客户端、打开浏览器即可使用的文件传输与聊天工具。支持 P2P 直连与房间模式，单容器 Docker 私有化部署。">
+  <style>
+    :root {
+      --bg: #e0e5ec;
+      --panel: #eef1f6;
+      --text: #2f3640;
+      --muted: #7f8c9b;
+      --accent: #6d5dfc;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: "PingFang SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+    .wrap { max-width: 1060px; margin: 0 auto; padding: 40px 20px 60px; }
+    header { text-align: center; padding: 40px 0 10px; }
+    header h1 { font-size: 40px; }
+    header p { color: var(--muted); max-width: 640px; margin: 12px auto 0; }
+    .btn {
+      display: inline-block; margin: 18px 6px 0; padding: 12px 26px;
+      border-radius: 999px; text-decoration: none; font-weight: 600;
+      background: var(--panel); color: var(--text);
+      box-shadow: 6px 6px 12px rgba(0,0,0,.12), -6px -6px 12px rgba(255,255,255,.8);
+    }
+    .btn.primary { background: var(--accent); color: #fff; }
+    section { margin-top: 48px; }
+    section h2 {
+      font-size: 24px; padding-left: 12px;
+      border-left: 4px solid var(--accent); margin-bottom: 20px;
+    }
+    .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 18px; }
+    .card {
+      background: var(--panel); border-radius: var(--radius); overflow: hidden;
+      box-shadow: 8px 8px 16px rgba(0,0,0,.12), -8px -8px 16px rgba(255,255,255,.8);
+    }
+    .card img { width: 100%; display: block; }
+    .card .cap { padding: 10px 14px; color: var(--muted); font-size: 14px; }
+    .feat { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+    .feat div {
+      background: var(--panel); border-radius: var(--radius); padding: 16px;
+      box-shadow: 6px 6px 12px rgba(0,0,0,.1), -6px -6px 12px rgba(255,255,255,.8);
+    }
+    .feat h3 { font-size: 16px; margin-bottom: 6px; }
+    .feat p { font-size: 14px; color: var(--muted); }
+    pre {
+      background: #24292f; color: #e6edf3; border-radius: var(--radius);
+      padding: 16px 18px; overflow-x: auto; font-size: 14px; margin-top: 10px;
+    }
+    code { font-family: "Cascadia Code", Consolas, monospace; }
+    .note {
+      margin-top: 12px; padding: 12px 16px; border-radius: 12px;
+      background: #fff7e6; border: 1px solid #ffd591; color: #7a4d00; font-size: 14px;
+    }
+    footer { text-align: center; color: var(--muted); margin-top: 56px; font-size: 14px; }
+    @media (max-width: 760px) {
+      .grid, .feat { grid-template-columns: 1fr; }
+      header h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>📤 WebDrop</h1>
+      <p>无需安装客户端、打开浏览器即可使用的文件传输与聊天工具。WebRTC P2P 直连 + 服务器中转兜底，单容器 Docker 私有化部署。</p>
+      <a class="btn primary" href="https://github.com/kuka1774083-wq/WebDrop">GitHub 仓库</a>
+      <a class="btn" href="#deploy">部署指南</a>
+    </header>
+
+    <section>
+      <h2>界面预览</h2>
+      <div class="grid">
+        <div class="card"><img src="screenshots/p2p-chat.png" alt="点对点会话"><div class="cap">点对点会话 · P2P 直连</div></div>
+        <div class="card"><img src="screenshots/room-chat.png" alt="房间聊天"><div class="cap">房间聊天</div></div>
+        <div class="card"><img src="screenshots/room-files.png" alt="房间文件"><div class="cap">房间文件 · 缩略图模式</div></div>
+        <div class="card"><img src="screenshots/admin.png" alt="管理台"><div class="cap">管理台仪表盘</div></div>
+        <div class="card"><img src="screenshots/p2p-home.png" alt="在线列表"><div class="cap">在线设备与在线用户</div></div>
+        <div class="card"><img src="screenshots/mobile-room.png" alt="手机端"><div class="cap">手机端房间</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>主题系统</h2>
+      <p style="color:var(--muted);margin-bottom:16px">内置默认新拟物派与 6 套公共主题，支持自制主题包并一键切换。</p>
+      <div class="grid">
+        <div class="card"><img src="screenshots/theme-default.png" alt="默认主题"><div class="cap">默认主题（新拟物派）</div></div>
+        <div class="card"><img src="screenshots/theme-dark.png" alt="暗黑模式"><div class="cap">暗黑模式</div></div>
+        <div class="card"><img src="screenshots/theme-memphis.png" alt="孟菲斯风格"><div class="cap">孟菲斯风格</div></div>
+        <div class="card"><img src="screenshots/theme-ghibli.png" alt="吉卜力风格"><div class="cap">吉卜力风格</div></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>核心功能</h2>
+      <div class="feat">
+        <div><h3>⚡ P2P 直连</h3><p>WebRTC DataChannel，IPv6 优先，同局域网自动识别；失败自动回退服务器中转（不落盘）。</p></div>
+        <div><h3>💬 房间模式</h3><p>文字、语音、照片、视频、文件；文件夹管理、过期销毁、上传/下载权限控制。</p></div>
+        <div><h3>🛡️ 管理后台</h3><p>实时监控、文件管理、用户审批、房间设置、全局主题与设备管理。</p></div>
+        <div><h3>📱 全端适配</h3><p>桌面端与手机端响应式设计，移动端文件选择器、语音录制均有专门优化。</p></div>
+        <div><h3>🎨 主题系统</h3><p>内置 6 套公共主题，支持 zip 主题包自制、预览、上传与全局默认。</p></div>
+        <div><h3>🐳 单容器部署</h3><p>Docker 一条命令启动，config 与 data 挂载宿主机，数据持久、升级迁移简单。</p></div>
+      </div>
+    </section>
+
+    <section id="deploy">
+      <h2>部署指南</h2>
+      <p style="color:var(--muted)">完整功能（WebSocket / WebRTC / SQLite）需要一台自己的服务器或 NAS，推荐用 Docker 部署：</p>
+      <pre><code>git clone https://github.com/kuka1774083-wq/WebDrop.git
+cd WebDrop
+docker compose up -d --build
+# 访问 http://服务器IP:60003 ，默认管理员 admin / admin（首次登录强制改密）</code></pre>
+      <p style="color:var(--muted);margin-top:16px">也可以直接使用 GitHub 自动构建的镜像（每次推送 main 自动发布到 GitHub Container Registry）：</p>
+      <pre><code>docker pull ghcr.io/kuka1774083-wq/webdrop:latest
+docker run -d --name webdrop --restart always \
+  -p 60003:8080 \
+  -v "$(pwd)/config:/app/config" \
+  -v "$(pwd)/data:/app/data" \
+  ghcr.io/kuka1774083-wq/webdrop:latest</code></pre>
+      <div class="note">⚠️ 本页面由 GitHub Pages 托管，仅作静态展示；由于 Pages 无法运行 Node.js 后端，实时聊天/传输功能需按上方 Docker 方式部署后使用。</div>
+    </section>
+
+    <footer>WebDrop · GitHub Pages 展示页 · 源码见 <a href="https://github.com/kuka1774083-wq/WebDrop">kuka1774083-wq/WebDrop</a></footer>
+  </div>
+</body>
+</html>
