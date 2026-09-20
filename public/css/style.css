@@ -455,6 +455,15 @@ tbody tr:hover td { background: var(--bg-soft); }
 .rf-toolbar select { padding: 0 10px; }
 .rf-toolbar input[type=text] { height: 38px; flex: 1 1 160px; min-width: 0; }
 .rf-toolbar2 input[type=text] { flex: 1 1 200px; }
+.rf-upload-progress { display: flex; flex-direction: column; gap: 8px; }
+.rf-upload-batch { display: flex; flex-direction: column; gap: 8px; padding: 10px; border-radius: var(--radius); background: var(--bg); box-shadow: var(--shadow-inset-sm); }
+.rf-upload-item { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 10px; }
+.rf-upload-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rf-upload-state { color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+.rf-upload-item .progress { grid-column: 1 / -1; width: 100%; margin-top: 4px; }
+.rf-folder-tree { display: flex; flex-direction: column; gap: 4px; max-height: 320px; overflow: auto; padding: 6px; border-radius: var(--radius); box-shadow: var(--shadow-inset-sm); }
+.rf-folder-tree-node { border: 0; background: transparent; color: inherit; text-align: left; padding: 7px 10px; border-radius: 8px; cursor: pointer; }
+.rf-folder-tree-node:hover, .rf-folder-tree-node.active { background: var(--accent); color: var(--accent-contrast, #fff); }
 .rf-view.active { box-shadow: var(--shadow-inset-sm); color: var(--accent); font-weight: 600; }
 .rf-folder-card { cursor: pointer; }
 .rf-folder-card:hover { box-shadow: var(--shadow-md); }

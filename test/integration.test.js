@@ -205,6 +205,55 @@ test('房间文件：上传、配额、下载、过期、删除', async () => {
   assert.equal(me.d.user.usedBytes, 7); // 只剩 'expired' 文件
 });
 
+test('房间文件夹：支持无限层级与无聊天气泡上传', async () => {
+  const u = await j('/api/auth/login', { body: { username: 'u1', password: 'pw1' } });
+  const ut = u.d.token;
+  const rooms = await j('/api/rooms/mine', { headers: { authorization: `Bearer ${ut}` } });
+  const num = rooms.d.rooms.find((x) => x.status === 'active').number;
+  const root = await j(`/api/rooms/${num}/folders`, { body: { name: '层级根目录' }, headers: { authorization: `Bearer ${ut}` } });
+  assert.equal(root.status, 201);
+  const child = await j(`/api/rooms/${num}/folders`, { body: { name: '一级目录', parentId: root.d.folder.id }, headers: { authorization: `Bearer ${ut}` } });
+  assert.equal(child.status, 201);
+  const grandchild = await j(`/api/rooms/${num}/folders`, { body: { name: '二级目录', parentId: child.d.folder.id }, headers: { authorization: `Bearer ${ut}` } });
+  assert.equal(grandchild.status, 201);
+  // 同名目录允许位于不同层级，但同一父级中仍需唯一。
+  const sameName = await j(`/api/rooms/${num}/folders`, { body: { name: '一级目录' }, headers: { authorization: `Bearer ${ut}` } });
+  assert.equal(sameName.status, 201);
+  const up = await fetch(`${BASE}/api/rooms/${num}/files`, {
+    method: 'POST',
+    headers: {
+      'x-file-name': encodeURIComponent('nested.txt'),
+      'x-folder': String(grandchild.d.folder.id),
+      'x-announce-in-chat': '0',
+      authorization: `Bearer ${ut}`,
+    },
+    body: Buffer.from('nested'),
+  });
+  const uploaded = await up.json();
+  assert.equal(up.status, 201);
+  assert.equal(uploaded.message, undefined);
+  assert.equal(uploaded.file.folderId, grandchild.d.folder.id);
+  // 不能把目录移动到自己的子目录中。
+  const invalid = await j(`/api/rooms/${num}/folders/${root.d.folder.id}`, {
+    method: 'DELETE',
+    body: { mode: 'move', targetFolderId: grandchild.d.folder.id },
+    headers: { authorization: `Bearer ${ut}` },
+  });
+  assert.equal(invalid.status, 400);
+  // 删除中间目录时，直属子目录与文件上移到父目录，层级不会丢失。
+  const del = await j(`/api/rooms/${num}/folders/${child.d.folder.id}`, {
+    method: 'DELETE',
+    body: { mode: 'root' },
+    headers: { authorization: `Bearer ${ut}` },
+  });
+  assert.equal(del.status, 200);
+  const listed = await j(`/api/rooms/${num}/files`);
+  const movedFolder = listed.d.folders.find((x) => x.id === grandchild.d.folder.id);
+  const movedFile = listed.d.files.find((x) => x.id === uploaded.file.id);
+  assert.equal(movedFolder.parentId, root.d.folder.id);
+  assert.equal(movedFile.folderId, grandchild.d.folder.id);
+});
+
 test('管理台：文件列表与管理员删除', async () => {
   const admin = await j('/api/auth/login', { body: { username: 'boss', password: 'boss123' } });
   const at = admin.d.token;

@@ -437,7 +437,7 @@ export function roomRoutes({ db, cfg, service, hub }) {
     const folders = db
       .prepare('SELECT * FROM room_folders WHERE room_id = ? ORDER BY id ASC')
       .all(String(room.id))
-      .map((x) => ({ id: x.id, name: x.name, createdAt: x.created_at }));
+      .map((x) => ({ id: x.id, parentId: x.parent_id ?? null, name: x.name, createdAt: x.created_at }));
     const rows = db
       .prepare(
         "SELECT * FROM files WHERE scope = 'room' AND ref_id = ? ORDER BY created_at DESC"
@@ -472,9 +472,9 @@ export function roomRoutes({ db, cfg, service, hub }) {
     let folderId = null;
     if (folderRaw === 'm4a') {
       // 聊天框录音默认归档到 m4a 文件夹（不存在则自动创建），便于房主统一清理
-      let fld = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND name = ?').get(String(room.id), 'm4a');
+      let fld = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND parent_id IS NULL AND name = ?').get(String(room.id), 'm4a');
       if (!fld) {
-        const info = db.prepare('INSERT INTO room_folders (room_id, name, created_at) VALUES (?, ?, ?)').run(String(room.id), 'm4a', nowIso());
+        const info = db.prepare('INSERT INTO room_folders (room_id, parent_id, name, created_at) VALUES (?, NULL, ?, ?)').run(String(room.id), 'm4a', nowIso());
         fld = { id: info.lastInsertRowid };
       }
       folderId = fld.id;
@@ -563,6 +563,23 @@ export function roomRoutes({ db, cfg, service, hub }) {
     return null;
   }
 
+  function folderDescendantIds(roomId, folderId) {
+    const all = db.prepare('SELECT id, parent_id FROM room_folders WHERE room_id = ?').all(String(roomId));
+    const children = new Map();
+    for (const row of all) {
+      const key = row.parent_id ?? null;
+      if (!children.has(key)) children.set(key, []);
+      children.get(key).push(row.id);
+    }
+    const ids = [];
+    const visit = (id) => {
+      ids.push(id);
+      for (const childId of children.get(id) || []) visit(childId);
+    };
+    visit(folderId);
+    return ids;
+  }
+
   r.post('/api/rooms/:number/folders', async (req, res) => {
     const user = service.identify(req);
     const room = db.prepare('SELECT * FROM rooms WHERE room_number = ?').get(req.params.number);
@@ -571,10 +588,16 @@ export function roomRoutes({ db, cfg, service, hub }) {
     const b = await readJson(req);
     const name = String(b.name || '').trim().replace(/[\/\\]/g, '').slice(0, 60);
     if (!name) return sendJson(res, 400, { error: '文件夹名称不能为空' });
-    const dup = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND name = ?').get(String(room.id), name);
+    const parentId = b.parentId == null || b.parentId === '' ? null : Number(b.parentId);
+    if (parentId != null) {
+      const parent = db.prepare('SELECT id FROM room_folders WHERE id = ? AND room_id = ?').get(parentId, String(room.id));
+      if (!parent) return sendJson(res, 400, { error: '父文件夹不存在' });
+    }
+    const dup = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND parent_id IS ? AND name = ?').get(String(room.id), parentId, name);
     if (dup) return sendJson(res, 409, { error: '同名文件夹已存在' });
-    const info = db.prepare('INSERT INTO room_folders (room_id, name, created_at) VALUES (?, ?, ?)').run(String(room.id), name, nowIso());
-    sendJson(res, 201, { ok: true, folder: { id: info.lastInsertRowid, name, createdAt: nowIso() } });
+    const createdAt = nowIso();
+    const info = db.prepare('INSERT INTO room_folders (room_id, parent_id, name, created_at) VALUES (?, ?, ?, ?)').run(String(room.id), parentId, name, createdAt);
+    sendJson(res, 201, { ok: true, folder: { id: info.lastInsertRowid, parentId, name, createdAt } });
   });
 
   r.put('/api/rooms/:number/folders/:folderId', async (req, res) => {
@@ -587,7 +610,7 @@ export function roomRoutes({ db, cfg, service, hub }) {
     const b = await readJson(req);
     const name = String(b.name || '').trim().replace(/[\/\\]/g, '').slice(0, 60);
     if (!name) return sendJson(res, 400, { error: '文件夹名称不能为空' });
-    const dup = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND name = ? AND id != ?').get(String(room.id), name, folder.id);
+    const dup = db.prepare('SELECT id FROM room_folders WHERE room_id = ? AND parent_id IS ? AND name = ? AND id != ?').get(String(room.id), folder.parent_id ?? null, name, folder.id);
     if (dup) return sendJson(res, 409, { error: '同名文件夹已存在' });
     db.prepare('UPDATE room_folders SET name = ? WHERE id = ?').run(name, folder.id);
     sendJson(res, 200, { ok: true, folder: { id: folder.id, name } });
@@ -601,24 +624,30 @@ export function roomRoutes({ db, cfg, service, hub }) {
     const folder = db.prepare('SELECT * FROM room_folders WHERE id = ? AND room_id = ?').get(Number(req.params.folderId), String(room.id));
     if (!folder) return sendJson(res, 404, { error: '文件夹不存在' });
     const b = await readJson(req);
-    const mode = b.mode || 'root'; // root=移回根目录 / delete=直接删除 / move=移动到其他文件夹
+    const mode = b.mode || 'root'; // root=移到上级目录 / delete=删除整个目录树 / move=移动到其他文件夹
+    const descendants = folderDescendantIds(room.id, folder.id);
     if (mode === 'delete') {
-      const rows = db
-        .prepare("SELECT id FROM files WHERE scope = 'room' AND ref_id = ? AND folder_id = ? AND status = 'active'")
-        .all(String(room.id), folder.id);
+      const marks = descendants.map(() => '?').join(', ');
+      const rows = db.prepare(
+        `SELECT id FROM files WHERE scope = 'room' AND ref_id = ? AND folder_id IN (${marks}) AND status = 'active'`
+      ).all(String(room.id), ...descendants);
       for (const row of rows) service.deleteFile(row.id, 'folder_deleted');
+      db.prepare(`DELETE FROM room_folders WHERE id IN (${marks})`).run(...descendants);
     } else if (mode === 'move') {
-      const targetFolderId = b.targetFolderId ? Number(b.targetFolderId) : null;
+      const targetFolderId = b.targetFolderId == null || b.targetFolderId === '' ? null : Number(b.targetFolderId);
       const target = targetFolderId != null
         ? db.prepare('SELECT id FROM room_folders WHERE id = ? AND room_id = ?').get(targetFolderId, String(room.id))
-        : null;
-      if (!target) return sendJson(res, 400, { error: '目标文件夹不存在' });
+        : { id: null };
+      if (!target || (targetFolderId != null && descendants.includes(targetFolderId))) return sendJson(res, 400, { error: '目标文件夹不存在或位于待删除目录内' });
       db.prepare('UPDATE files SET folder_id = ? WHERE folder_id = ?').run(targetFolderId, folder.id);
+      db.prepare('UPDATE room_folders SET parent_id = ? WHERE parent_id = ?').run(targetFolderId, folder.id);
+      db.prepare('DELETE FROM room_folders WHERE id = ?').run(folder.id);
     } else {
-      // 默认：文件移回根目录
-      db.prepare('UPDATE files SET folder_id = NULL WHERE folder_id = ?').run(folder.id);
+      // 默认：文件与直属子目录一起移到上级目录。
+      db.prepare('UPDATE files SET folder_id = ? WHERE folder_id = ?').run(folder.parent_id ?? null, folder.id);
+      db.prepare('UPDATE room_folders SET parent_id = ? WHERE parent_id = ?').run(folder.parent_id ?? null, folder.id);
+      db.prepare('DELETE FROM room_folders WHERE id = ?').run(folder.id);
     }
-    db.prepare('DELETE FROM room_folders WHERE id = ?').run(folder.id);
     sendJson(res, 200, { ok: true });
   });
 

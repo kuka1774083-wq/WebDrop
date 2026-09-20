@@ -102,10 +102,12 @@ export function openDb(dbPath, { storagePath, dataDir }) {
     CREATE TABLE IF NOT EXISTS room_folders (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       room_id INTEGER NOT NULL,
+      parent_id INTEGER,
       name TEXT NOT NULL,
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_room_folders_room ON room_folders(room_id);
+    CREATE INDEX IF NOT EXISTS idx_room_folders_parent ON room_folders(room_id, parent_id);
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       scope TEXT NOT NULL,
@@ -156,6 +158,7 @@ export function openDb(dbPath, { storagePath, dataDir }) {
   addColumn('rooms', 'download_permission', "download_permission TEXT DEFAULT 'all'");
   addColumn('rooms_users', 'left', 'left INTEGER NOT NULL DEFAULT 0');
   addColumn('files', 'folder_id', 'folder_id INTEGER');
+  addColumn('room_folders', 'parent_id', 'parent_id INTEGER');
   addColumn('messages', 'deleted', 'deleted INTEGER NOT NULL DEFAULT 0');
   addColumn('messages', 'client_id', 'client_id TEXT');
   addColumn('sessions', 'device_a', 'device_a TEXT');

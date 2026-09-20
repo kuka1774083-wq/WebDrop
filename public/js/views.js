@@ -1710,7 +1710,14 @@ export function viewRoom(container, number) {
     }
   }
 
-  async function uploadFiles(fileList, folderId, { announceInChat = true } = {}) {
+  async function uploadFiles(fileList, folderId, {
+    announceInChat = true,
+    onStart,
+    onProgress,
+    onComplete,
+    onError,
+    onFinish,
+  } = {}) {
     if (!fileList.length) return;
     const upPerm = room?.uploadPermission || 'all';
     const isOwner = room && room.ownerId === myUserId();
@@ -1721,6 +1728,7 @@ export function viewRoom(container, number) {
     if (tooBig) return toast(`文件 ${tooBig.name} 超过房主设置的单文件大小上限`, 'error');
     const expires = await chooseUploadOptions(fileList);
     if (expires === null) return;
+    onStart?.(fileList);
     for (const file of fileList) {
       const wrap = el('div', { class: 'progress' }, [el('div')]);
       const bubble = announceInChat ? el('div', { class: 'msg mine' }, [
@@ -1748,17 +1756,21 @@ export function viewRoom(container, number) {
             },
             onProgress: (r) => {
               wrap.firstChild.style.width = `${Math.round(r * 100)}%`;
+              onProgress?.(file, r);
             },
           }
         );
         bubble?.remove();
         fileCache.set(d.file.id, d.file);
         if (d.message) appendRoomMessage({ ...d.message, file_id: d.file.id }, true);
+        onComplete?.(file);
       } catch (e) {
         bubble?.remove();
         toast(e.message, 'error');
+        onError?.(file, e);
       }
     }
+    onFinish?.();
   }
 
   function chooseUploadOptions(fileList) {
@@ -1808,15 +1820,87 @@ export function viewRoom(container, number) {
     const fileInput = el('input', { type: 'file', multiple: true, class: 'hidden' });
     const pathEl = el('div', { class: 'rf-path' });
     const bodyWrap = el('div', { class: 'rf-body' });
+    const uploadProgress = el('div', { class: 'rf-upload-progress' });
+
+    async function uploadFromFileManager(list) {
+      let batch = null;
+      const items = new Map();
+      await uploadFiles(list, rfState.folderId, {
+        announceInChat: false,
+        onStart: (uploading) => {
+          batch = el('div', { class: 'rf-upload-batch' });
+          for (const file of uploading) {
+            const bar = el('div', { class: 'progress' }, [el('div')]);
+            const state = el('span', { class: 'rf-upload-state', text: '0%' });
+            const item = el('div', { class: 'rf-upload-item' }, [
+              el('span', { class: 'rf-upload-name', text: file.name }),
+              state,
+              bar,
+            ]);
+            items.set(file, { state, bar });
+            batch.append(item);
+          }
+          uploadProgress.append(batch);
+        },
+        onProgress: (file, ratio) => {
+          const item = items.get(file);
+          if (!item) return;
+          const percent = Math.round(ratio * 100);
+          item.bar.firstChild.style.width = `${percent}%`;
+          item.state.textContent = `${percent}%`;
+        },
+        onComplete: (file) => {
+          const item = items.get(file);
+          if (!item) return;
+          item.bar.firstChild.style.width = '100%';
+          item.state.textContent = '已完成';
+        },
+        onError: (file) => {
+          const item = items.get(file);
+          if (item) item.state.textContent = '失败';
+        },
+        onFinish: () => setTimeout(() => batch?.remove(), 2600),
+      });
+    }
+
+    function folderById(id) {
+      return folders.find((x) => x.id === id) || null;
+    }
+
+    function changeFolder(folderId) {
+      rfState.folderId = folderId;
+      updatePath();
+      renderBody();
+    }
+
+    function goUpFolder() {
+      const current = folderById(rfState.folderId);
+      if (!current) return false;
+      changeFolder(current.parentId ?? null);
+      return true;
+    }
 
     function updatePath() {
+      if (rfState.folderId != null && !folderById(rfState.folderId)) rfState.folderId = null;
       pathEl.innerHTML = '';
       pathEl.append(el('a', {
-        href: '#', text: '根目录',
-        onClick: (e) => { e.preventDefault(); rfState.folderId = null; updatePath(); renderBody(); },
+        href: '#', text: '根目录', onClick: (e) => { e.preventDefault(); changeFolder(null); },
       }));
-      const cur = folders.find((x) => x.id === rfState.folderId);
-      if (cur) pathEl.append(el('span', { text: ' / ' }), el('span', { class: 'rf-path-cur', text: cur.name }));
+      const ancestors = [];
+      const seen = new Set();
+      let cur = folderById(rfState.folderId);
+      while (cur && !seen.has(cur.id)) {
+        ancestors.unshift(cur);
+        seen.add(cur.id);
+        cur = folderById(cur.parentId);
+      }
+      for (const folder of ancestors) {
+        pathEl.append(el('span', { text: ' / ' }), el('a', {
+          href: '#', text: folder.name,
+          class: folder.id === rfState.folderId ? 'rf-path-cur' : '',
+          onClick: (e) => { e.preventDefault(); changeFolder(folder.id); },
+        }));
+      }
       upBtn.disabled = rfState.folderId == null;
     }
 
@@ -1834,11 +1918,50 @@ export function viewRoom(container, number) {
       return acts;
     }
 
-    /** 当前上下文可见的文件夹：根目录下显示全部，进入文件夹后无子级 */
+    /** 当前目录下的直属文件夹。 */
     function foldersInView() {
-      if (rfState.folderId != null) return [];
       const q = rfState.q.trim().toLowerCase();
-      return folders.filter((f) => !q || f.name.toLowerCase().includes(q));
+      return folders.filter((f) => f.parentId === rfState.folderId && (!q || f.name.toLowerCase().includes(q)));
+    }
+
+    function descendantFolderIds(folderId) {
+      const ids = [];
+      const visit = (id) => {
+        ids.push(id);
+        for (const folder of folders.filter((x) => x.parentId === id)) visit(folder.id);
+      };
+      visit(folderId);
+      return ids;
+    }
+
+    function folderTreePicker({ selectedId = null, disabledIds = [] } = {}) {
+      const disabled = new Set(disabledIds);
+      let value = selectedId;
+      const tree = el('div', { class: 'rf-folder-tree' });
+      const choose = (id) => {
+        value = id;
+        for (const node of tree.querySelectorAll('.rf-folder-tree-node')) {
+          node.classList.toggle('active', node.dataset.folderId === String(id));
+        }
+      };
+      const addNode = (folder, depth) => {
+        if (disabled.has(folder.id)) return;
+        const node = el('button', {
+          type: 'button', class: 'rf-folder-tree-node', text: `📁 ${folder.name}`,
+          'data-folder-id': String(folder.id), style: `padding-left:${10 + depth * 18}px`,
+          onClick: () => choose(folder.id),
+        });
+        tree.append(node);
+        for (const child of folders.filter((x) => x.parentId === folder.id)) addNode(child, depth + 1);
+      };
+      const root = el('button', {
+        type: 'button', class: 'rf-folder-tree-node', text: '根目录', 'data-folder-id': 'null',
+        onClick: () => choose(null),
+      });
+      tree.append(root);
+      for (const folder of folders.filter((x) => x.parentId == null)) addNode(folder, 1);
+      choose(value);
+      return { tree, value: () => value };
     }
 
     function folderActions(fld) {
@@ -1860,9 +1983,7 @@ export function viewRoom(container, number) {
         ])
       );
       card.addEventListener('click', () => {
-        rfState.folderId = fld.id;
-        updatePath();
-        renderBody();
+        changeFolder(fld.id);
       });
       return card;
     }
@@ -1918,7 +2039,7 @@ export function viewRoom(container, number) {
           el('a', { class: 'small', href: '#', text: '删除', onClick: (e) => { e.preventDefault(); deleteFolder(fld); } }),
         ] : [];
         table.append(el('tbody', {}, [el('tr', {}, [
-          el('td', {}, [el('a', { href: '#', text: `📁 ${fld.name}`, onClick: (e) => { e.preventDefault(); rfState.folderId = fld.id; updatePath(); renderBody(); } })]),
+          el('td', {}, [el('a', { href: '#', text: `📁 ${fld.name}`, onClick: (e) => { e.preventDefault(); changeFolder(fld.id); } })]),
           el('td', { text: '文件夹' }),
           el('td', { text: '—' }),
           el('td', { text: '—' }),
@@ -2013,7 +2134,7 @@ export function viewRoom(container, number) {
           { label: '取消', class: 'secondary', onClick: () => m.close() },
           { label: '创建', class: 'ok', onClick: async () => {
             try {
-              await api(`/api/rooms/${encodeURIComponent(number)}/folders`, { method: 'POST', body: { name: input.value } });
+              await api(`/api/rooms/${encodeURIComponent(number)}/folders`, { method: 'POST', body: { name: input.value, parentId: rfState.folderId } });
               m.close();
               refresh();
             } catch (e) { toast(e.message, 'error'); }
@@ -2044,16 +2165,15 @@ export function viewRoom(container, number) {
 
     async function deleteFolder(f) {
       if (!isRoomOwner) return toast('只有房主可以管理文件夹', 'error');
-      const otherFolders = folders.filter((x) => x.id !== f.id);
       const modeSel = el('select', {}, [
-        el('option', { value: 'root', text: '移回根目录' }),
-        el('option', { value: 'delete', text: '直接删除文件夹中的文件' }),
-        ...(otherFolders.length ? [el('option', { value: 'move', text: '移动到其他文件夹' })] : []),
+        el('option', { value: 'root', text: '移到上级目录' }),
+        el('option', { value: 'delete', text: '删除整个目录树中的文件' }),
+        el('option', { value: 'move', text: '移动到其他文件夹' }),
       ]);
-      const moveSel = el('select', {}, otherFolders.map((x) => el('option', { value: String(x.id), text: x.name })));
+      const movePicker = folderTreePicker({ disabledIds: descendantFolderIds(f.id) });
       const moveWrap = el('div', { class: 'form-group hidden', style: 'margin-top:8px' }, [
         el('label', { text: '目标文件夹' }),
-        moveSel,
+        movePicker.tree,
       ]);
       modeSel.addEventListener('change', () => moveWrap.classList.toggle('hidden', modeSel.value !== 'move'));
       const choice = await new Promise((resolve) => {
@@ -2065,21 +2185,20 @@ export function viewRoom(container, number) {
           ]),
           actions: [
             { label: '取消', class: 'secondary', onClick: () => { resolve(null); m.close(); } },
-            { label: '确定', class: 'danger', onClick: () => { resolve({ mode: modeSel.value, targetFolderId: moveSel.value }); m.close(); } },
+            { label: '确定', class: 'danger', onClick: () => { resolve({ mode: modeSel.value, targetFolderId: movePicker.value() }); m.close(); } },
           ],
         });
       });
       if (!choice) return;
-      if (choice.mode === 'move' && !choice.targetFolderId) return toast('请选择目标文件夹', 'error');
       if (choice.mode === 'delete') {
         if (!(await confirmDialog('确认删除', '文件夹中的文件将被永久删除，此操作不可恢复。确定继续吗？', '删除', true))) return;
       }
       try {
         await api(`/api/rooms/${encodeURIComponent(number)}/folders/${f.id}`, {
           method: 'DELETE',
-          body: { mode: choice.mode, targetFolderId: choice.mode === 'move' ? Number(choice.targetFolderId) : undefined },
+          body: { mode: choice.mode, targetFolderId: choice.mode === 'move' ? choice.targetFolderId : undefined },
         });
-        if (rfState.folderId === f.id) rfState.folderId = null;
+        if (descendantFolderIds(f.id).includes(rfState.folderId)) rfState.folderId = f.parentId ?? null;
         refresh();
       } catch (e) { toast(e.message, 'error'); }
     }
@@ -2108,20 +2227,16 @@ export function viewRoom(container, number) {
 
     async function moveFile(f) {
       if (!isRoomOwner) return toast('只有房主可以移动文件', 'error');
-      const sel = el('select', {}, [
-        el('option', { value: '', text: '根目录' }),
-        ...folders.filter((x) => x.id !== f.folderId).map((x) => el('option', { value: String(x.id), text: x.name })),
-      ]);
-      sel.value = f.folderId == null ? '' : String(f.folderId);
+      const picker = folderTreePicker({ selectedId: f.folderId });
       let m = null;
       m = modal({
         title: `移动文件：${f.filename}`,
-        body: sel,
+        body: picker.tree,
         actions: [
           { label: '取消', class: 'secondary', onClick: () => m.close() },
           { label: '移动', class: 'ok', onClick: async () => {
             try {
-              const d = await api(`/api/rooms/${encodeURIComponent(number)}/files/${f.id}/move`, { method: 'POST', body: { folderId: sel.value === '' ? null : Number(sel.value) } });
+              const d = await api(`/api/rooms/${encodeURIComponent(number)}/files/${f.id}/move`, { method: 'POST', body: { folderId: picker.value() } });
               fileCache.set(f.id, d.file);
               chat.updateFile(d.file);
               m.close();
@@ -2156,7 +2271,7 @@ export function viewRoom(container, number) {
     }
 
     const switchView = (v) => { rfState.view = v; refreshViewBtns(); renderBody(); };
-    upBtn.addEventListener('click', () => { rfState.folderId = null; updatePath(); renderBody(); });
+    upBtn.addEventListener('click', () => { goUpFolder(); });
     searchInput.addEventListener('input', () => { rfState.q = searchInput.value; renderBody(); });
     kindSel.addEventListener('change', () => { rfState.kind = kindSel.value; renderBody(); });
     newFolderBtn.addEventListener('click', createFolder);
@@ -2167,7 +2282,7 @@ export function viewRoom(container, number) {
       ws.setFilePick(false);
       if (!list.length) return;
       try {
-        await uploadFiles(list, rfState.folderId, { announceInChat: false }); // 多选一次性批量上传（一个保存时长弹窗、显示数量）
+        await uploadFromFileManager(list); // 多选一次性批量上传（一个保存时长弹窗、显示数量）
         refresh();
       } catch (e) { toast(e.message, 'error'); }
     });
@@ -2176,6 +2291,7 @@ export function viewRoom(container, number) {
     const rfWrap = el('div', { class: 'rf-wrap' }, [
       el('div', { class: 'rf-toolbar' }, [upBtn, pathEl, newFolderBtn]),
       el('div', { class: 'rf-toolbar rf-toolbar2' }, [kindSel, searchInput, refreshBtn]),
+      uploadProgress,
       fileInput,
       bodyWrap,
     ]);
@@ -2200,7 +2316,7 @@ export function viewRoom(container, number) {
       const list = [...(e.dataTransfer?.files || [])];
       if (!list.length) return;
       try {
-        await uploadFiles(list, rfState.folderId, { announceInChat: false });
+        await uploadFromFileManager(list);
         refresh();
       } catch (err) { toast(err.message, 'error'); }
     });
@@ -2209,6 +2325,11 @@ export function viewRoom(container, number) {
       title: `房间文件（${number}）`,
       className: 'modal-wide',
       body: rfWrap,
+      onBack: () => {
+        if (rfState.folderId == null) return false;
+        goUpFolder();
+        return true;
+      },
       actions: [
         { label: '缩略图', class: 'secondary small rf-view', onClick: () => switchView('thumb') },
         { label: '列表', class: 'secondary small rf-view', onClick: () => switchView('list') },

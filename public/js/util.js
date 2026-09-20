@@ -88,13 +88,21 @@ function closeModal(record, { fromHistory = false } = {}) {
   }
 }
 
+function handleModalBack(record) {
+  if (record.onBack?.() !== true) return false;
+  if (record.historyPushed) {
+    history.pushState({ ...(history.state || {}), webdropModal: record.id }, '', location.href);
+  }
+  return true;
+}
+
 window.addEventListener('popstate', () => {
   if (ignoredModalPops > 0) {
     ignoredModalPops -= 1;
     return;
   }
   const top = modalStack.at(-1);
-  if (top) closeModal(top, { fromHistory: true });
+  if (top && !handleModalBack(top)) closeModal(top, { fromHistory: true });
 });
 
 window.addEventListener('keydown', (event) => {
@@ -105,7 +113,7 @@ window.addEventListener('keydown', (event) => {
   closeModal(top);
 });
 
-export function modal({ title, body, actions = [], className = '' }) {
+export function modal({ title, body, actions = [], className = '', onBack }) {
   const root = $('#modal-root');
   const backdrop = el('div', { class: 'modal-backdrop' });
   const box = el('div', { class: `modal ${className}`.trim() }, [
@@ -120,6 +128,7 @@ export function modal({ title, body, actions = [], className = '' }) {
     id: ++nextModalId,
     root,
     layer,
+    onBack,
     closed: false,
     historyPushed: false,
   };
