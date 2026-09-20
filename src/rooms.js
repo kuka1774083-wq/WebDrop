@@ -454,6 +454,7 @@ export function roomRoutes({ db, cfg, service, hub }) {
 
   r.post('/api/rooms/:number/files', async (req, res) => {
     const tempId = req.headers['x-temp-id'];
+    const announceInChat = req.headers['x-announce-in-chat'] !== '0';
     let user = service.identify(req);
     if (!user) user = service.ensureTempUser(tempId);
     if (!user || user.status === 'banned') {
@@ -521,6 +522,8 @@ export function roomRoutes({ db, cfg, service, hub }) {
       expiresAt: expires,
       folderId,
     });
+    const publicFile = service.publicFile(file);
+    if (!announceInChat) return sendJson(res, 201, { file: publicFile });
     const msg = service.addMessage({
       scope: 'room',
       refId: String(room.id),
@@ -533,9 +536,9 @@ export function roomRoutes({ db, cfg, service, hub }) {
     hub.emitRoom(room.room_number, {
       type: 'roomMessage',
       message: msg,
-      file: service.publicFile(file),
+      file: publicFile,
     });
-    sendJson(res, 201, { file: service.publicFile(file), message: msg });
+    sendJson(res, 201, { file: publicFile, message: msg });
   });
 
   r.delete('/api/rooms/:number/files/:fileId', async (req, res) => {

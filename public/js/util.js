@@ -59,6 +59,52 @@ export function genTempId() {
   return s;
 }
 
+// 每个弹窗占用一条同 URL 的历史记录，移动端返回键可优先关闭最上层弹窗。
+const modalStack = [];
+let nextModalId = 0;
+let ignoredModalPops = 0;
+
+function cleanupModalRoot(root) {
+  if (root.querySelector('.modal')) return;
+  root.classList.remove('open');
+  // 弹窗全部关闭后，把挂在弹窗层内的播放器移回 body，避免随弹窗层一起隐藏
+  const players = root.querySelectorAll('.voice-player');
+  for (const p of players) {
+    p.style.zIndex = '';
+    document.body.append(p);
+  }
+}
+
+function closeModal(record, { fromHistory = false } = {}) {
+  if (record.closed) return;
+  record.closed = true;
+  const index = modalStack.indexOf(record);
+  if (index !== -1) modalStack.splice(index, 1);
+  record.layer.remove();
+  cleanupModalRoot(record.root);
+  if (record.historyPushed && !fromHistory) {
+    ignoredModalPops += 1;
+    history.back();
+  }
+}
+
+window.addEventListener('popstate', () => {
+  if (ignoredModalPops > 0) {
+    ignoredModalPops -= 1;
+    return;
+  }
+  const top = modalStack.at(-1);
+  if (top) closeModal(top, { fromHistory: true });
+});
+
+window.addEventListener('keydown', (event) => {
+  if (event.key !== 'Escape') return;
+  const top = modalStack.at(-1);
+  if (!top) return;
+  event.preventDefault();
+  closeModal(top);
+});
+
 export function modal({ title, body, actions = [], className = '' }) {
   const root = $('#modal-root');
   const backdrop = el('div', { class: 'modal-backdrop' });
@@ -70,18 +116,21 @@ export function modal({ title, body, actions = [], className = '' }) {
   const layer = el('div', { class: 'modal-layer' }, [backdrop, box]);
   root.append(layer);
   root.classList.add('open');
-  const close = () => {
-    layer.remove();
-    if (!root.querySelector('.modal')) {
-      root.classList.remove('open');
-      // 弹窗全部关闭后，把挂在弹窗层内的播放器移回 body，避免随弹窗层一起隐藏
-      const players = root.querySelectorAll('.voice-player');
-      for (const p of players) {
-        p.style.zIndex = '';
-        document.body.append(p);
-      }
-    }
+  const record = {
+    id: ++nextModalId,
+    root,
+    layer,
+    closed: false,
+    historyPushed: false,
   };
+  modalStack.push(record);
+  try {
+    history.pushState({ ...(history.state || {}), webdropModal: record.id }, '', location.href);
+    record.historyPushed = true;
+  } catch {
+    // 受限 WebView 中仍保留弹窗本身，只是无法接管系统返回键。
+  }
+  const close = () => closeModal(record);
   return { close, box };
 }
 

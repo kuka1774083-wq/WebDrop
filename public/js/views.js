@@ -1710,7 +1710,7 @@ export function viewRoom(container, number) {
     }
   }
 
-  async function uploadFiles(fileList, folderId) {
+  async function uploadFiles(fileList, folderId, { announceInChat = true } = {}) {
     if (!fileList.length) return;
     const upPerm = room?.uploadPermission || 'all';
     const isOwner = room && room.ownerId === myUserId();
@@ -1723,14 +1723,17 @@ export function viewRoom(container, number) {
     if (expires === null) return;
     for (const file of fileList) {
       const wrap = el('div', { class: 'progress' }, [el('div')]);
-      const chip = el('div', { class: 'file-chip' }, [
-        el('span', { text: '📄' }),
-        el('span', { class: 'fname', text: file.name }),
-        wrap,
-      ]);
-      const bubble = el('div', { class: 'msg mine' }, [chip]);
-      chat.body.append(bubble);
-      chat.scroll();
+      const bubble = announceInChat ? el('div', { class: 'msg mine' }, [
+        el('div', { class: 'file-chip' }, [
+          el('span', { text: '📄' }),
+          el('span', { class: 'fname', text: file.name }),
+          wrap,
+        ]),
+      ]) : null;
+      if (bubble) {
+        chat.body.append(bubble);
+        chat.scroll();
+      }
       try {
         const d = await uploadWithProgress(
           `/api/rooms/${encodeURIComponent(number)}/files`,
@@ -1741,17 +1744,18 @@ export function viewRoom(container, number) {
               'x-file-mime': encodeURIComponent(file.mime || file.type || 'application/octet-stream'),
               'x-expires': encodeURIComponent(expires),
               'x-folder': folderId ? String(folderId) : '',
+              'x-announce-in-chat': announceInChat ? '1' : '0',
             },
             onProgress: (r) => {
               wrap.firstChild.style.width = `${Math.round(r * 100)}%`;
             },
           }
         );
-        bubble.remove();
+        bubble?.remove();
         fileCache.set(d.file.id, d.file);
-        appendRoomMessage({ ...d.message, file_id: d.file.id }, true);
+        if (d.message) appendRoomMessage({ ...d.message, file_id: d.file.id }, true);
       } catch (e) {
-        bubble.remove();
+        bubble?.remove();
         toast(e.message, 'error');
       }
     }
@@ -2163,7 +2167,7 @@ export function viewRoom(container, number) {
       ws.setFilePick(false);
       if (!list.length) return;
       try {
-        await uploadFiles(list, rfState.folderId); // 多选一次性批量上传（一个保存时长弹窗、显示数量）
+        await uploadFiles(list, rfState.folderId, { announceInChat: false }); // 多选一次性批量上传（一个保存时长弹窗、显示数量）
         refresh();
       } catch (e) { toast(e.message, 'error'); }
     });
@@ -2196,7 +2200,7 @@ export function viewRoom(container, number) {
       const list = [...(e.dataTransfer?.files || [])];
       if (!list.length) return;
       try {
-        await uploadFiles(list, rfState.folderId);
+        await uploadFiles(list, rfState.folderId, { announceInChat: false });
         refresh();
       } catch (err) { toast(err.message, 'error'); }
     });
