@@ -1,5 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import { DatabaseSync } from 'node:sqlite';
+import { openDb } from '../src/db.js';
 import {
   formatBytes,
   genTempUuid,
@@ -22,6 +27,25 @@ import {
   hasMatchingSubnet,
   parseCandidateIp,
 } from '../public/js/rtc.js';
+
+test('旧数据库在创建 parent_id 索引前完成迁移', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'webdrop-db-migration-'));
+  const dbPath = path.join(dir, 'webdrop.sqlite');
+  const legacy = new DatabaseSync(dbPath);
+  legacy.exec('CREATE TABLE room_folders (id INTEGER PRIMARY KEY AUTOINCREMENT, room_id INTEGER NOT NULL, name TEXT NOT NULL, created_at TEXT NOT NULL)');
+  legacy.close();
+  let db;
+  try {
+    db = openDb(dbPath, { storagePath: path.join(dir, 'files'), dataDir: dir });
+    const columns = db.prepare('PRAGMA table_info(room_folders)').all().map((x) => x.name);
+    assert.ok(columns.includes('parent_id'));
+    const indexes = db.prepare('PRAGMA index_list(room_folders)').all().map((x) => x.name);
+    assert.ok(indexes.includes('idx_room_folders_parent'));
+  } finally {
+    db?.close();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});
 
 test('formatBytes 自动选择单位', () => {
   assert.equal(formatBytes(0), '0 B');

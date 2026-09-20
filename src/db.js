@@ -107,7 +107,6 @@ export function openDb(dbPath, { storagePath, dataDir }) {
       created_at TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_room_folders_room ON room_folders(room_id);
-    CREATE INDEX IF NOT EXISTS idx_room_folders_parent ON room_folders(room_id, parent_id);
     CREATE TABLE IF NOT EXISTS messages (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       scope TEXT NOT NULL,
@@ -159,6 +158,8 @@ export function openDb(dbPath, { storagePath, dataDir }) {
   addColumn('rooms_users', 'left', 'left INTEGER NOT NULL DEFAULT 0');
   addColumn('files', 'folder_id', 'folder_id INTEGER');
   addColumn('room_folders', 'parent_id', 'parent_id INTEGER');
+  // 必须在迁移补列后创建，避免旧数据库启动时因缺少 parent_id 而失败。
+  db.exec('CREATE INDEX IF NOT EXISTS idx_room_folders_parent ON room_folders(room_id, parent_id)');
   addColumn('messages', 'deleted', 'deleted INTEGER NOT NULL DEFAULT 0');
   addColumn('messages', 'client_id', 'client_id TEXT');
   addColumn('sessions', 'device_a', 'device_a TEXT');
